@@ -1,0 +1,13 @@
+{
+  "name": "alguma-coia",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "dark-kitchen-angular"
+  ],
+  "scripts": {
+    "start": "npm --prefix dark-kitchen-angular run start",
+    "build": "npm --prefix dark-kitchen-angular run build",
+    "install": "npm --prefix dark-kitchen-angular install"
+  }
+}

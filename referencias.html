@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark Kitchen — Portal do Entregador</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080808;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --surface3: #222222;
+  --border: #2a2a2a;
+  --accent: #FF4500;
+  --accent2: #FF6B35;
+  --gold: #FFB800;
+  --green: #00C853;
+  --blue: #2196F3;
+  --purple: #9C27B0;
+  --text: #F0F0F0;
+  --muted: #666;
+  --muted2: #444;
+  --r: 10px;
+  --r2: 16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--surface);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ── SCREEN MANAGER ── */
+.screen{display:none;animation:fadeIn .35s ease;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ══════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════ */
+#screen-login{min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.login-card{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;}
+.login-header{padding:32px 36px 24px;border-bottom:1px solid var(--border);text-align:center;}
+.login-logo{font-family:'Bebas Neue',cursive;font-size:42px;letter-spacing:4px;color:var(--accent);text-shadow:0 0 30px rgba(255,69,0,.5);}
+.login-sub{font-size:13px;color:var(--muted);margin-top:4px;}
+.role-tabs{display:flex;gap:0;padding:20px 36px 0;}
+.role-tab{flex:1;padding:10px 8px;background:transparent;border:1px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;}
+.role-tab:not(:last-child){border-right:none;}
+.role-tab.active{background:var(--surface2);color:var(--text);border-color:var(--border);}
+.role-tab[data-role="client"].active{color:var(--green);}
+.role-tab[data-role="entregador"].active{color:#FF9800;}
+.role-tab[data-role="admin"].active{color:var(--blue);}
+.role-tab[data-role="master"].active{color:var(--gold);}
+.login-body{padding:24px 36px 32px;background:var(--surface2);}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.field input{width:100%;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;transition:border-color .2s;}
+.field input:focus{outline:none;border-color:var(--accent);}
+.field input::placeholder{color:var(--muted2);}
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:44px;}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px;opacity:.5;transition:opacity .2s;background:none;border:none;color:inherit;}
+.pw-eye:hover{opacity:1;}
+.btn-login{width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(255,69,0,.4);transition:all .25s;margin-top:8px;}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,69,0,.55);}
+.btn-login:active{transform:translateY(0);}
+.login-error{display:none;background:rgba(244,67,54,.1);border:1px solid rgba(244,67,54,.3);border-radius:var(--r);padding:10px 14px;font-size:13px;color:#f44336;margin-bottom:14px;text-align:center;}
+.login-error.visible{display:block;}
+.demo-hint{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);text-align:center;}
+.demo-hint p{font-size:11px;color:var(--muted);margin-bottom:8px;}
+.demo-credentials{display:flex;flex-direction:column;gap:4px;}
+.demo-cred{font-size:11px;color:var(--muted2);font-family:'DM Mono',monospace;padding:4px 8px;background:var(--surface);border-radius:6px;cursor:pointer;transition:color .2s;}
+.demo-cred:hover{color:var(--accent);}
+.demo-cred span{color:var(--muted);}
+
+/* ══════════════════════════════════
+   SHARED LAYOUT (post-login)
+══════════════════════════════════ */
+.app-shell{min-height:100vh;display:flex;flex-direction:column;}
+.topbar{height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+.topbar-logo{font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:3px;color:var(--accent);}
+.topbar-role-badge{padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;letter-spacing:.5px;}
+.topbar-user{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.topbar-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+.topbar-name{font-size:13px;font-weight:600;}
+.btn-logout{padding:6px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--r);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-logout:hover{border-color:var(--accent);color:var(--accent);}
+.main-content{flex:1;padding:24px 20px;max-width:1200px;width:100%;margin:0 auto;}
+
+/* ── BUTTONS ── */
+.btn{padding:9px 18px;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:white;box-shadow:0 4px 14px rgba(255,69,0,.3);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,69,0,.45);}
+.btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--accent);color:var(--text);}
+.btn-success{background:rgba(0,200,83,.12);color:var(--green);border:1px solid rgba(0,200,83,.3);}
+.btn-success:hover{background:rgba(0,200,83,.2);}
+.btn-warning{background:rgba(255,184,0,.12);color:var(--gold);border:1px solid rgba(255,184,0,.3);}
+.btn-warning:hover{background:rgba(255,184,0,.2);}
+.btn-danger{background:rgba(244,67,54,.12);color:#f44336;border:1px solid rgba(244,67,54,.3);}
+.btn-danger:hover{background:rgba(244,67,54,.2);}
+.btn-blue{background:rgba(33,150,243,.12);color:var(--blue);border:1px solid rgba(33,150,243,.3);}
+.btn-blue:hover{background:rgba(33,150,243,.2);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-icon{padding:7px;border-radius:8px;}
+.btn:active{transform:scale(0.97)!important;}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.card-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:1px;}
+.card-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* ── STATUS PILLS ── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;letter-spacing:.3px;}
+.pill-orange{background:rgba(255,69,0,.12);color:var(--accent);}
+.pill-green{background:rgba(0,200,83,.12);color:var(--green);}
+.pill-gold{background:rgba(255,184,0,.12);color:var(--gold);}
+.pill-blue{background:rgba(33,150,243,.12);color:var(--blue);}
+.pill-red{background:rgba(244,67,54,.12);color:#f44336;}
+.pill-gray{background:rgba(102,102,102,.15);color:var(--muted);}
+.pill-purple{background:rgba(156,39,176,.15);color:var(--purple);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:var(--r);font-size:14px;font-weight:600;z-index:10000;transform:translateY(100px);opacity:0;transition:all .3s;max-width:320px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-success{background:#00C853;color:#000;}
+.toast-error{background:#f44336;color:#fff;}
+.toast-info{background:var(--surface3);color:var(--text);border:1px solid var(--border);}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;animation:fadeIn .2s ease;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-head h3{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:1px;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px;transition:color .2s;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:24px;}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+.form-row{margin-bottom:16px;}
+.form-row label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;transition:border-color .2s;}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:var(--accent);}
+.form-row select option{background:var(--surface2);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+/* ══════════════════════════════════
+   ENTREGADOR SCREEN
+══════════════════════════════════ */
+#screen-entregador{flex-direction:column;}
+.entregador-tabs{display:flex;gap:2px;background:var(--surface);border-radius:12px;padding:4px;margin-bottom:24px;}
+.entregador-tab{flex:1;padding:9px 12px;background:transparent;border:none;border-radius:9px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;}
+.entregador-tab.active{background:var(--surface2);color:#FF9800;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.entregador-tab:hover:not(.active){color:var(--text);}
+.entregador-tab-content{display:none;}
+.entregador-tab-content.active{display:block;animation:fadeIn .25s ease;}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;text-align:center;}
+.stat-card .stat-icon{font-size:26px;margin-bottom:8px;}
+.stat-card .stat-val{font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:1px;}
+.stat-card .stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+
+.order-list{display:flex;flex-direction:column;gap:12px;}
+.order-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px 20px;display:flex;align-items:center;gap:16px;transition:border-color .2s;}
+.order-card:hover{border-color:var(--muted2);}
+.order-token{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--accent);letter-spacing:1px;min-width:72px;}
+.order-info{flex:1;}
+.order-customer{font-weight:700;font-size:14px;margin-bottom:2px;}
+.order-address{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.order-items{font-size:12px;color:var(--muted2);}
+.order-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.order-value{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--green);}
+.order-actions{display:flex;gap:8px;}
+.order-eta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+
+.map-placeholder{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);margin-bottom:20px;}
+.map-placeholder .map-icon{font-size:48px;}
+.map-placeholder p{font-size:14px;}
+
+.route-steps{display:flex;flex-direction:column;gap:12px;}
+.route-step{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);}
+.route-step.done{opacity:.5;}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.step-info{flex:1;}
+.step-title{font-weight:600;font-size:14px;}
+.step-sub{font-size:12px;color:var(--muted);}
+.step-time{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
+
+.earnings-period{display:flex;gap:8px;margin-bottom:20px;}
+.earnings-period button{flex:1;padding:9px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.earnings-period button.active{background:rgba(255,69,0,.12);border-color:rgba(255,69,0,.4);color:var(--accent);}
+.earnings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
+.earnings-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;}
+.earnings-val{font-family:'Bebas Neue',cursive;font-size:32px;color:var(--green);}
+.earnings-lbl{font-size:12px;color:var(--muted);}
+
+.deliveries-table{width:100%;border-collapse:collapse;}
+.deliveries-table th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.deliveries-table td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border);}
+.deliveries-table tr:last-child td{border-bottom:none;}
+.deliveries-table tr:hover td{background:var(--surface2);}
+
+/* profile */
+.profile-header{display:flex;align-items:center;gap:20px;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:20px;}
+.profile-avatar-lg{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#FF9800,#FF4500);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;flex-shrink:0;}
+.profile-name{font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:1px;}
+.profile-rating{display:flex;align-items:center;gap:6px;font-size:14px;margin-top:4px;}
+.profile-rating .stars{color:var(--gold);}
+.vehicle-select{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.vehicle-btn{padding:16px;background:var(--surface);border:2px solid var(--border);border-radius:var(--r2);cursor:pointer;text-align:center;transition:all .2s;}
+.vehicle-btn.active{border-color:#FF9800;background:rgba(255,152,0,.08);}
+.vehicle-btn .v-icon{font-size:28px;margin-bottom:6px;}
+.vehicle-btn .v-name{font-size:12px;font-weight:600;}
+
+/* online toggle */
+.online-toggle-wrap{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:20px;}
+.online-toggle-label{font-size:16px;font-weight:700;}
+.online-toggle-sub{font-size:12px;color:var(--muted);}
+.toggle-switch{position:relative;width:56px;height:30px;cursor:pointer;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;border-radius:15px;background:var(--surface3);border:1px solid var(--border);transition:.3s;}
+.toggle-slider::before{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:var(--muted);top:3px;left:3px;transition:.3s;}
+.toggle-switch input:checked+.toggle-slider{background:rgba(0,200,83,.2);border-color:var(--green);}
+.toggle-switch input:checked+.toggle-slider::before{transform:translateX(26px);background:var(--green);}
+
+/* ══════════════════════════════════
+   CLIENT SCREEN
+══════════════════════════════════ */
+#screen-client{flex-direction:column;}
+.client-tabs{display:flex;gap:2px;background:var(--surface);border-radius:12px;padding:4px;margin-bottom:24px;}
+.client-tab{flex:1;padding:9px 12px;background:transparent;border:none;border-radius:9px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;}
+.client-tab.active{background:var(--surface2);color:var(--green);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.client-tab:hover:not(.active){color:var(--text);}
+.client-tab-content{display:none;}
+.client-tab-content.active{display:block;animation:fadeIn .25s ease;}
+
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+.menu-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;cursor:pointer;transition:all .25s;position:relative;}
+.menu-item:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.menu-item-emoji{font-size:40px;margin-bottom:10px;}
+.menu-item-name{font-weight:700;font-size:15px;margin-bottom:4px;}
+.menu-item-desc{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5;}
+.menu-item-footer{display:flex;align-items:center;justify-content:space-between;}
+.menu-item-price{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--green);}
+.menu-item-time{font-size:11px;color:var(--muted);}
+.item-badge{position:absolute;top:12px;right:12px;padding:3px 8px;border-radius:50px;font-size:10px;font-weight:700;}
+.add-btn{padding:7px 14px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.add-btn:hover{transform:scale(1.05);box-shadow:0 4px 14px rgba(255,69,0,.4);}
+.add-btn:active{transform:scale(.97);}
+
+.cart-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;}
+.cart-empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.cart-empty .cart-icon{font-size:48px;margin-bottom:12px;}
+.cart-items{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
+.cart-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--r);}
+.cart-item-emoji{font-size:24px;}
+.cart-item-name{font-weight:600;font-size:14px;flex:1;}
+.cart-item-price{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--green);}
+.qty-controls{display:flex;align-items:center;gap:8px;}
+.qty-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.qty-btn:hover{border-color:var(--accent);color:var(--accent);}
+.qty-num{font-weight:700;min-width:20px;text-align:center;}
+.cart-total{display:flex;justify-content:space-between;padding-top:16px;border-top:1px solid var(--border);font-size:16px;font-weight:700;}
+.cart-total-val{font-family:'Bebas Neue',cursive;font-size:24px;color:var(--accent);}
+
+.tracking-timeline{display:flex;flex-direction:column;gap:0;}
+.track-step{display:flex;gap:16px;padding-bottom:24px;position:relative;}
+.track-step:last-child{padding-bottom:0;}
+.track-step:not(:last-child)::after{content:'';position:absolute;left:15px;top:32px;bottom:0;width:2px;background:var(--border);}
+.track-step.done::after{background:var(--green);}
+.track-dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;z-index:1;background:var(--surface);}
+.track-step.done .track-dot{border-color:var(--green);background:rgba(0,200,83,.1);}
+.track-step.active .track-dot{border-color:var(--accent);background:rgba(255,69,0,.1);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,69,0,.4);}50%{box-shadow:0 0 0 8px rgba(255,69,0,0);}}
+.track-info .track-title{font-weight:700;font-size:14px;}
+.track-info .track-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.track-time{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px;}
+
+.loyalty-hero{background:linear-gradient(135deg,rgba(255,69,0,.15),rgba(255,184,0,.1));border:1px solid rgba(255,184,0,.2);border-radius:var(--r2);padding:24px;margin-bottom:20px;text-align:center;}
+.loyalty-pts{font-family:'Bebas Neue',cursive;font-size:56px;color:var(--gold);line-height:1;}
+.loyalty-tier{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:50px;background:rgba(255,184,0,.12);border:1px solid rgba(255,184,0,.25);font-size:12px;font-weight:700;color:var(--gold);margin-top:6px;}
+.rewards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.reward-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;cursor:pointer;transition:all .2s;}
+.reward-card:hover{border-color:var(--gold);transform:translateY(-2px);}
+.reward-emoji{font-size:32px;margin-bottom:8px;}
+.reward-name{font-weight:700;font-size:14px;margin-bottom:4px;}
+.reward-desc{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.reward-pts{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--gold);}
+.reward-pts span{font-size:11px;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;}
+
+/* ══════════════════════════════════
+   ADMIN SCREEN
+══════════════════════════════════ */
+#screen-admin{flex-direction:column;}
+.admin-nav{display:flex;gap:2px;background:var(--surface);border-radius:12px;padding:4px;margin-bottom:24px;overflow-x:auto;}
+.admin-nav-btn{padding:8px 14px;background:transparent;border:none;border-radius:9px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.admin-nav-btn.active{background:var(--surface2);color:var(--blue);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.admin-nav-btn:hover:not(.active){color:var(--text);}
+.admin-section{display:none;}
+.admin-section.active{display:block;animation:fadeIn .25s ease;}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:18px;}
+.kpi-icon{font-size:22px;margin-bottom:10px;}
+.kpi-val{font-family:'Bebas Neue',cursive;font-size:32px;line-height:1;}
+.kpi-label{font-size:12px;color:var(--muted);margin-top:4px;}
+.kpi-delta{font-size:11px;margin-top:4px;font-weight:600;}
+.kpi-delta.up{color:var(--green);}
+.kpi-delta.down{color:#f44336;}
+
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{text-align:left;padding:10px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.data-table td{padding:13px 16px;font-size:13px;border-bottom:1px solid var(--border);}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tbody tr:hover td{background:var(--surface2);}
+
+.orders-filter{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.filter-btn{padding:6px 14px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.filter-btn.active{background:rgba(255,69,0,.1);border-color:rgba(255,69,0,.4);color:var(--accent);}
+.filter-btn:hover:not(.active){border-color:var(--muted2);color:var(--text);}
+
+.search-bar{padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:260px;transition:border-color .2s;}
+.search-bar:focus{outline:none;border-color:var(--accent);}
+.search-bar::placeholder{color:var(--muted2);}
+
+/* ══════════════════════════════════
+   MASTER SCREEN
+══════════════════════════════════ */
+#screen-master{flex-direction:column;}
+.master-nav{display:flex;gap:2px;background:var(--surface);border-radius:12px;padding:4px;margin-bottom:24px;overflow-x:auto;}
+.master-nav-btn{padding:8px 14px;background:transparent;border:none;border-radius:9px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.master-nav-btn.active{background:var(--surface2);color:var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.master-nav-btn:hover:not(.active){color:var(--text);}
+.master-section{display:none;}
+.master-section.active{display:block;animation:fadeIn .25s ease;}
+
+.master-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.master-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:18px;border-top:3px solid transparent;}
+.master-kpi.gold{border-top-color:var(--gold);}
+.master-kpi.red{border-top-color:#f44336;}
+.master-kpi.green{border-top-color:var(--green);}
+.master-kpi.blue{border-top-color:var(--blue);}
+
+.unit-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.unit-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:18px;}
+.unit-name{font-weight:700;font-size:15px;margin-bottom:4px;}
+.unit-id{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px;}
+.unit-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.unit-stat{background:var(--surface2);border-radius:var(--r);padding:10px;text-align:center;}
+.unit-stat-val{font-family:'Bebas Neue',cursive;font-size:20px;}
+.unit-stat-lbl{font-size:10px;color:var(--muted);}
+.unit-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;}
+
+.users-controls{display:flex;gap:10px;align-items:center;margin-bottom:16px;}
+
+.admin-user-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);}
+.admin-user-row:last-child{border-bottom:none;}
+.user-avatar-sm{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.user-info{flex:1;}
+.user-name{font-weight:600;font-size:14px;}
+.user-email{font-size:12px;color:var(--muted);}
+.user-actions{display:flex;gap:6px;}
+
+.activity-log{display:flex;flex-direction:column;gap:10px;}
+.log-item{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);}
+.log-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.log-text{flex:1;font-size:13px;line-height:1.5;}
+.log-time{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;white-space:nowrap;}
+
+.config-sections{display:flex;flex-direction:column;gap:16px;}
+.config-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;}
+.config-section h4{font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.config-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.config-row:last-child{border-bottom:none;}
+.config-label{font-size:14px;}
+.config-desc{font-size:12px;color:var(--muted);}
+
+/* Responsive */
+@media(max-width:768px){
+  .stats-row,.kpi-grid,.master-kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .form-grid{grid-template-columns:1fr;}
+  .menu-grid{grid-template-columns:1fr;}
+  .topbar-name{display:none;}
+  .admin-nav,.master-nav{gap:1px;}
+}
+@media(max-width:480px){
+  .stats-row,.kpi-grid,.master-kpi-grid{grid-template-columns:1fr 1fr;}
+  .vehicle-select{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">🔥 DARK KITCHEN</div>
+      <div class="login-sub">Portal de Acesso</div>
+    </div>
+    <div class="role-tabs">
+      <button class="role-tab active" data-role="entregador" onclick="selectRole('entregador',this)">🛵 Entregador</button>
+      <button class="role-tab" data-role="client" onclick="selectRole('client',this)">👤 Cliente</button>
+      <button class="role-tab" data-role="admin" onclick="selectRole('admin',this)">🔑 Admin</button>
+      <button class="role-tab" data-role="master" onclick="selectRole('master',this)">⭐ Master</button>
+    </div>
+    <div class="login-body">
+      <div id="login-error" class="login-error">E-mail ou senha incorretos.</div>
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" id="login-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="field">
+        <div class="pw-wrap">
+          <label>Senha</label>
+          <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+          <button class="pw-eye" id="pw-toggle" onclick="togglePw()" title="Mostrar senha">👁</button>
+        </div>
+      </div>
+      <button class="btn-login" onclick="doLogin()">→ Entrar</button>
+      <div class="demo-hint">
+        <p>Clique para preencher credenciais de demonstração:</p>
+        <div class="demo-credentials">
+          <div class="demo-cred" onclick="fillDemo('entregador@dk.com','entrega123','entregador')">🛵 <span>entregador@dk.com</span> / entrega123</div>
+          <div class="demo-cred" onclick="fillDemo('cliente@dk.com','cliente123','client')">👤 <span>cliente@dk.com</span> / cliente123</div>
+          <div class="demo-cred" onclick="fillDemo('admin@dk.com','admin123','admin')">🔑 <span>admin@dk.com</span> / admin123</div>
+          <div class="demo-cred" onclick="fillDemo('master@dk.com','master123','master')">⭐ <span>master@dk.com</span> / master123</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     ENTREGADOR SCREEN
+══════════════════════════════ -->
+<div id="screen-entregador" class="screen">
+  <div class="app-shell">
+    <div class="topbar">
+      <div class="topbar-logo">🔥 DK</div>
+      <div class="pill pill-orange" style="font-size:11px;font-weight:700;">🛵 ENTREGADOR</div>
+      <div id="entregador-online-pill" class="pill pill-gray">● OFFLINE</div>
+      <div class="topbar-user">
+        <div class="topbar-avatar" style="background:linear-gradient(135deg,#FF9800,#FF4500);">MS</div>
+        <span class="topbar-name">Marcos Silva</span>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+      </div>
+    </div>
+    <div class="main-content">
+      <!-- Online toggle -->
+      <div class="online-toggle-wrap">
+        <div>
+          <div class="online-toggle-label" id="online-label">Você está OFFLINE</div>
+          <div class="online-toggle-sub">Ative para receber pedidos</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="online-toggle" onchange="toggleOnline(this)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Tabs -->
+      <div class="entregador-tabs">
+        <button class="entregador-tab active" onclick="switchEntregadorTab('dashboard',this)">📊 Dashboard</button>
+        <button class="entregador-tab" onclick="switchEntregadorTab('pedidos',this)">📦 Pedidos</button>
+        <button class="entregador-tab" onclick="switchEntregadorTab('rota',this)">🗺️ Rota Ativa</button>
+        <button class="entregador-tab" onclick="switchEntregadorTab('ganhos',this)">💰 Ganhos</button>
+        <button class="entregador-tab" onclick="switchEntregadorTab('perfil',this)">👤 Perfil</button>
+      </div>
+
+      <!-- Dashboard Tab -->
+      <div id="etab-dashboard" class="entregador-tab-content active">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-val" style="color:var(--accent)">8</div>
+            <div class="stat-lbl">Entregas Hoje</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-val" style="color:var(--green)">R$96</div>
+            <div class="stat-lbl">Ganhos Hoje</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-val" style="color:var(--gold)">4.9</div>
+            <div class="stat-lbl">Avaliação</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⏱</div>
+            <div class="stat-val">18min</div>
+            <div class="stat-lbl">Tempo Médio</div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Pedidos Disponíveis</div>
+              <div class="card-sub">Aceite e inicie a entrega</div>
+            </div>
+            <span class="pill pill-green">● 3 disponíveis</span>
+          </div>
+          <div class="order-list" id="pedidos-disponiveis">
+            <!-- Preenchido via JS -->
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Histórico do Dia</div>
+          </div>
+          <table class="deliveries-table">
+            <thead><tr><th>Token</th><th>Cliente</th><th>Endereço</th><th>Valor</th><th>Status</th></tr></thead>
+            <tbody id="hist-hoje">
+              <tr><td><span style="font-family:'Bebas Neue',cursive;color:var(--accent)">#A015</span></td><td>Pedro Alves</td><td>Rua das Flores, 140</td><td style="color:var(--green);font-family:'Bebas Neue',cursive;font-size:16px">R$12,00</td><td><span class="pill pill-green">✓ Entregue</span></td></tr>
+              <tr><td><span style="font-family:'Bebas Neue',cursive;color:var(--accent)">#A016</span></td><td>Carla Nogueira</td><td>Av. Brasil, 890</td><td style="color:var(--green);font-family:'Bebas Neue',cursive;font-size:16px">R$14,00</td><td><span class="pill pill-green">✓ Entregue</span></td></tr>
+              <tr><td><span style="font-family:'Bebas Neue',cursive;color:var(--accent)">#A017</span></td><td>João Melo</td><td>Rua Palmeiras, 55</td><td style="color:var(--green);font-family:'Bebas Neue',cursive;font-size:16px">R$11,00</td><td><span class="pill pill-green">✓ Entregue</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pedidos Tab -->
+      <div id="etab-pedidos" class="entregador-tab-content">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Novos Pedidos</div>
+            <button class="btn btn-secondary btn-sm" onclick="showToast('Atualizando...','info')">🔄 Atualizar</button>
+          </div>
+          <div class="order-list" id="pedidos-lista"></div>
+        </div>
+      </div>
+
+      <!-- Rota Tab -->
+      <div id="etab-rota" class="entregador-tab-content">
+        <div id="rota-empty" style="text-align:center;padding:60px 20px;color:var(--muted);">
+          <div style="font-size:48px;margin-bottom:12px;">🗺️</div>
+          <p style="font-size:16px;font-weight:600;margin-bottom:6px;">Nenhuma entrega ativa</div>
+          <p style="font-size:13px;">Aceite um pedido para ver a rota aqui</p>
+        </div>
+        <div id="rota-active" style="display:none;">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <div>
+                <div class="card-title" id="rota-token">Pedido #A019</div>
+                <div class="card-sub" id="rota-customer">Lucas Ferreira</div>
+              </div>
+              <span class="pill pill-orange">Em Andamento</span>
+            </div>
+            <div class="map-placeholder">
+              <div class="map-icon">📍</div>
+              <p style="font-weight:700;">Mapa em tempo real</p>
+              <p style="font-size:12px;">Rua das Acácias, 320 — Bairro Jardim</p>
+            </div>
+            <div class="route-steps" id="route-steps">
+              <div class="route-step done" id="rstep-0">
+                <div class="step-dot" style="background:rgba(0,200,83,.1);border-color:var(--green);">🏪</div>
+                <div class="step-info"><div class="step-title">Chegou ao restaurante</div><div class="step-sub">Dark Kitchen — Cozinha Central</div></div>
+                <div class="step-time">14:28</div>
+              </div>
+              <div class="route-step done" id="rstep-1">
+                <div class="step-dot" style="background:rgba(0,200,83,.1);border-color:var(--green);">📦</div>
+                <div class="step-info"><div class="step-title">Pedido coletado</div><div class="step-sub">Smash Burger Duplo × 2, Coca-Cola</div></div>
+                <div class="step-time">14:32</div>
+              </div>
+              <div class="route-step active" id="rstep-2">
+                <div class="step-dot">🛵</div>
+                <div class="step-info"><div class="step-title">Em rota de entrega</div><div class="step-sub">Estimado: ~8 minutos</div></div>
+                <div class="step-time">—</div>
+              </div>
+              <div class="route-step" id="rstep-3">
+                <div class="step-dot">✅</div>
+                <div class="step-info"><div class="step-title">Entregue ao cliente</div><div class="step-sub">Confirmar ao chegar</div></div>
+                <div class="step-time">—</div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-blue" style="flex:1;" onclick="showToast('📞 Ligando para o cliente...','info')">📞 Ligar Cliente</button>
+            <button class="btn btn-success" style="flex:1;" onclick="confirmarEntrega()">✅ Confirmar Entrega</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ganhos Tab -->
+      <div id="etab-ganhos" class="entregador-tab-content">
+        <div class="earnings-period">
+          <button class="active" onclick="setPeriod('hoje',this)">Hoje</button>
+          <button onclick="setPeriod('semana',this)">Semana</button>
+          <button onclick="setPeriod('mes',this)">Mês</button>
+        </div>
+        <div class="earnings-grid">
+          <div class="earnings-card">
+            <div class="earnings-lbl">Ganhos</div>
+            <div class="earnings-val" id="earn-total">R$ 96,00</div>
+          </div>
+          <div class="earnings-card">
+            <div class="earnings-lbl">Entregas</div>
+            <div class="earnings-val" style="color:var(--blue)" id="earn-count">8</div>
+          </div>
+          <div class="earnings-card">
+            <div class="earnings-lbl">Por Entrega</div>
+            <div class="earnings-val" style="color:var(--gold)" id="earn-avg">R$ 12,00</div>
+          </div>
+          <div class="earnings-card">
+            <div class="earnings-lbl">Gorjetas</div>
+            <div class="earnings-val" style="color:var(--green)" id="earn-tip">R$ 18,00</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;">Últimas Entregas</div>
+          <table class="deliveries-table">
+            <thead><tr><th>Token</th><th>Valor</th><th>Gorjeta</th><th>Duração</th><th>Hora</th></tr></thead>
+            <tbody>
+              <tr><td style="font-family:'DM Mono';color:var(--accent)">#A017</td><td style="color:var(--green);font-weight:700">R$11,00</td><td style="color:var(--gold)">R$3,00</td><td>14 min</td><td style="color:var(--muted)">14:55</td></tr>
+              <tr><td style="font-family:'DM Mono';color:var(--accent)">#A016</td><td style="color:var(--green);font-weight:700">R$14,00</td><td style="color:var(--gold)">—</td><td>17 min</td><td style="color:var(--muted)">14:30</td></tr>
+              <tr><td style="font-family:'DM Mono';color:var(--accent)">#A015</td><td style="color:var(--green);font-weight:700">R$12,00</td><td style="color:var(--gold)">R$5,00</td><td>12 min</td><td style="color:var(--muted)">14:05</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Perfil Tab -->
+      <div id="etab-perfil" class="entregador-tab-content">
+        <div class="profile-header">
+          <div class="profile-avatar-lg">MS</div>
+          <div>
+            <div class="profile-name">Marcos Silva</div>
+            <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;">marcos@entregador.com</div>
+            <div class="profile-rating"><span class="stars">★★★★★</span><span style="font-weight:700">4.9</span><span style="color:var(--muted);font-size:12px">(142 avaliações)</span></div>
+          </div>
+          <div style="margin-left:auto;display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+            <span class="pill pill-green">✓ Verificado</span>
+            <button class="btn btn-secondary btn-sm" onclick="openModal('modal-edit-profile')">✏️ Editar</button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title" style="margin-bottom:16px;">Meu Veículo</div>
+          <div class="vehicle-select">
+            <button class="vehicle-btn active" id="veh-moto" onclick="selectVehicle('moto',this)">
+              <div class="v-icon">🛵</div><div class="v-name">Moto</div>
+            </button>
+            <button class="vehicle-btn" id="veh-bike" onclick="selectVehicle('bike',this)">
+              <div class="v-icon">🚲</div><div class="v-name">Bicicleta</div>
+            </button>
+            <button class="vehicle-btn" id="veh-carro" onclick="selectVehicle('carro',this)">
+              <div class="v-icon">🚗</div><div class="v-name">Carro</div>
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:16px;">Dados Pessoais</div>
+          <div class="form-grid">
+            <div class="form-row"><label>Nome Completo</label><input value="Marcos Silva"></div>
+            <div class="form-row"><label>CPF</label><input value="•••.•••.•••-••" readonly style="color:var(--muted)"></div>
+            <div class="form-row"><label>Telefone</label><input value="(11) 98765-4321"></div>
+            <div class="form-row"><label>Placa do Veículo</label><input value="ABC-1234" id="vehicle-plate"></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:4px;">
+            <button class="btn btn-primary" onclick="showToast('✓ Dados salvos com sucesso!','success')">💾 Salvar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     CLIENT SCREEN
+══════════════════════════════ -->
+<div id="screen-client" class="screen">
+  <div class="app-shell">
+    <div class="topbar">
+      <div class="topbar-logo">🔥 DK</div>
+      <div class="pill pill-green" style="font-size:11px;font-weight:700;">👤 CLIENTE</div>
+      <div class="topbar-user">
+        <div class="topbar-avatar" style="background:linear-gradient(135deg,var(--green),#00695C);">JS</div>
+        <span class="topbar-name">João Silva</span>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('🛒 '+(cartCount)+' itens no carrinho','info')" style="position:relative">
+          🛒 <span id="cart-badge" style="background:var(--accent);color:white;border-radius:50%;padding:1px 6px;font-size:10px;font-weight:700;">0</span>
+        </button>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="client-tabs">
+        <button class="client-tab active" onclick="switchClientTab('menu',this)">🍔 Cardápio</button>
+        <button class="client-tab" onclick="switchClientTab('carrinho',this)">🛒 Carrinho</button>
+        <button class="client-tab" onclick="switchClientTab('tracking',this)">📍 Rastreio</button>
+        <button class="client-tab" onclick="switchClientTab('fidelidade',this)">⭐ Fidelidade</button>
+      </div>
+
+      <!-- Menu Tab -->
+      <div id="ctab-menu" class="client-tab-content active">
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="filter-btn active" onclick="filterMenu('todos',this)">Todos</button>
+          <button class="filter-btn" onclick="filterMenu('burger',this)">🍔 Burgers</button>
+          <button class="filter-btn" onclick="filterMenu('pizza',this)">🍕 Pizzas</button>
+          <button class="filter-btn" onclick="filterMenu('bowl',this)">🥗 Bowls</button>
+          <button class="filter-btn" onclick="filterMenu('pasta',this)">🍝 Pastas</button>
+          <button class="filter-btn" onclick="filterMenu('drink',this)">🥤 Drinks</button>
+          <button class="filter-btn" onclick="filterMenu('dessert',this)">🍫 Sobremesas</button>
+        </div>
+        <div class="menu-grid" id="menu-grid"></div>
+      </div>
+
+      <!-- Carrinho Tab -->
+      <div id="ctab-carrinho" class="client-tab-content">
+        <div class="cart-section">
+          <div id="cart-empty" class="cart-empty">
+            <div class="cart-icon">🛒</div>
+            <p style="font-size:16px;font-weight:700;margin-bottom:6px;">Seu carrinho está vazio</p>
+            <p style="font-size:13px;color:var(--muted);">Adicione itens do cardápio</p>
+          </div>
+          <div id="cart-filled" style="display:none;">
+            <div class="cart-items" id="cart-items-list"></div>
+            <div class="card" style="background:var(--surface2);border:1px solid var(--border);padding:16px;margin-bottom:12px;">
+              <div class="form-row"><label>Endereço de Entrega</label><input id="delivery-address" placeholder="Rua, número, bairro..."></div>
+              <div class="form-row" style="margin-bottom:0;"><label>Observações</label><textarea id="delivery-obs" rows="2" placeholder="Ex: sem cebola, toque a campainha..." style="width:100%;padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;"></textarea></div>
+            </div>
+            <div class="cart-total">
+              <span>Total</span>
+              <span class="cart-total-val" id="cart-total-val">R$ 0,00</span>
+            </div>
+            <button class="btn btn-primary" style="width:100%;margin-top:14px;padding:14px;font-size:15px;" onclick="fazerPedido()">✓ Fazer Pedido</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tracking Tab -->
+      <div id="ctab-tracking" class="client-tab-content">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Pedido #A021</div>
+              <div class="card-sub">Birria Tacos × 3, Limonada Suíça</div>
+            </div>
+            <span class="pill pill-orange">Em Preparo</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:20px;">
+            <span style="font-size:32px;">🛵</span>
+            <div>
+              <div style="font-size:14px;font-weight:700;">Marcos Silva</div>
+              <div style="font-size:12px;color:var(--muted);">Seu entregador</div>
+              <div style="color:var(--gold);font-size:12px;font-weight:700;">★★★★★ 4.9</div>
+            </div>
+            <button class="btn btn-blue btn-sm" style="margin-left:auto;" onclick="showToast('📞 Ligando para o entregador...','info')">📞 Ligar</button>
+          </div>
+          <div class="tracking-timeline">
+            <div class="track-step done">
+              <div class="track-dot">✓</div>
+              <div class="track-info">
+                <div class="track-title">Pedido confirmado</div>
+                <div class="track-sub">Seu pedido foi recebido</div>
+                <div class="track-time">14:33</div>
+              </div>
+            </div>
+            <div class="track-step done">
+              <div class="track-dot">🍳</div>
+              <div class="track-info">
+                <div class="track-title">Em preparo</div>
+                <div class="track-sub">A cozinha está preparando seu pedido</div>
+                <div class="track-time">14:35</div>
+              </div>
+            </div>
+            <div class="track-step active">
+              <div class="track-dot">🛵</div>
+              <div class="track-info">
+                <div class="track-title">A caminho</div>
+                <div class="track-sub">Marcos está indo até você · ~5 min</div>
+              </div>
+            </div>
+            <div class="track-step">
+              <div class="track-dot">🏠</div>
+              <div class="track-info">
+                <div class="track-title">Entregue</div>
+                <div class="track-sub">Bom apetite!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-danger btn-sm" style="width:100%;" onclick="showToast('⚠️ Cancelamento solicitado','info')">✗ Cancelar Pedido</button>
+      </div>
+
+      <!-- Fidelidade Tab -->
+      <div id="ctab-fidelidade" class="client-tab-content">
+        <div class="loyalty-hero">
+          <div style="font-size:14px;color:var(--muted);margin-bottom:4px;">Seus pontos</div>
+          <div class="loyalty-pts">1.240</div>
+          <div class="loyalty-tier">🥇 GOLD</div>
+          <div style="margin-top:16px;font-size:12px;color:var(--muted);">Faltam 260 pts para Platinum</div>
+          <div style="height:6px;background:var(--surface3);border-radius:3px;margin-top:8px;overflow:hidden;">
+            <div style="height:100%;width:82%;background:linear-gradient(90deg,var(--gold),var(--accent));border-radius:3px;transition:width .5s;"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;font-size:16px;font-weight:700;">Resgatar Recompensas</div>
+        <div class="rewards-grid" id="rewards-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     ADMIN SCREEN
+══════════════════════════════ -->
+<div id="screen-admin" class="screen">
+  <div class="app-shell">
+    <div class="topbar">
+      <div class="topbar-logo">🔥 DK</div>
+      <div class="pill pill-blue" style="font-size:11px;font-weight:700;">🔑 ADMIN</div>
+      <div class="topbar-user">
+        <div class="topbar-avatar" style="background:linear-gradient(135deg,var(--blue),#1565C0);">CA</div>
+        <span class="topbar-name">Carlos Admin</span>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="admin-nav">
+        <button class="admin-nav-btn active" onclick="switchAdminSection('dashboard',this)">📊 Dashboard</button>
+        <button class="admin-nav-btn" onclick="switchAdminSection('pedidos',this)">📦 Pedidos</button>
+        <button class="admin-nav-btn" onclick="switchAdminSection('entregadores',this)">🛵 Entregadores</button>
+        <button class="admin-nav-btn" onclick="switchAdminSection('produtos',this)">🍔 Produtos</button>
+        <button class="admin-nav-btn" onclick="switchAdminSection('usuarios',this)">👥 Usuários</button>
+        <button class="admin-nav-btn" onclick="switchAdminSection('estoque',this)">📦 Estoque</button>
+      </div>
+
+      <!-- Dashboard -->
+      <div id="asec-dashboard" class="admin-section active">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-val" style="color:var(--green)">R$4.280</div>
+            <div class="kpi-label">Faturamento Hoje</div>
+            <div class="kpi-delta up">↑ 18% vs ontem</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">📦</div>
+            <div class="kpi-val">34</div>
+            <div class="kpi-label">Pedidos Hoje</div>
+            <div class="kpi-delta up">↑ 12%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">🛵</div>
+            <div class="kpi-val" style="color:#FF9800">5</div>
+            <div class="kpi-label">Entregadores Ativos</div>
+            <div class="kpi-delta up">● Online agora</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">⭐</div>
+            <div class="kpi-val" style="color:var(--gold)">4.8</div>
+            <div class="kpi-label">Avaliação Média</div>
+            <div class="kpi-delta up">↑ 0.1 esta semana</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Pedidos em Aberto</div>
+              <span class="pill pill-orange">5 pendentes</span>
+            </div>
+            <div class="order-list" id="admin-pedidos-live"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Entregadores Online</div>
+              <span class="pill pill-green">5 online</span>
+            </div>
+            <div id="entregadores-online"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pedidos -->
+      <div id="asec-pedidos" class="admin-section">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Gestão de Pedidos</div>
+            <input class="search-bar" placeholder="🔍 Buscar pedido..." oninput="searchOrders(this.value)">
+          </div>
+          <div class="orders-filter">
+            <button class="filter-btn active" onclick="filterOrders('todos',this)">Todos (34)</button>
+            <button class="filter-btn" onclick="filterOrders('pending',this)">⏳ Pendentes (3)</button>
+            <button class="filter-btn" onclick="filterOrders('preparing',this)">🍳 Em Preparo (2)</button>
+            <button class="filter-btn" onclick="filterOrders('done',this)">✓ Prontos (29)</button>
+          </div>
+          <table class="data-table" id="admin-orders-table">
+            <thead><tr><th>Token</th><th>Cliente</th><th>Itens</th><th>Total</th><th>ETA</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="admin-orders-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Entregadores -->
+      <div id="asec-entregadores" class="admin-section">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Entregadores</div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-entregador')">+ Adicionar</button>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Entregador</th><th>Veículo</th><th>Status</th><th>Avaliação</th><th>Entregas Hoje</th><th>Ganhos Hoje</th><th>Ações</th></tr></thead>
+            <tbody id="entregadores-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Produtos -->
+      <div id="asec-produtos" class="admin-section">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Cardápio</div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-produto')">+ Novo Produto</button>
+          </div>
+          <table class="data-table" id="produtos-table">
+            <thead><tr><th>Item</th><th>Categoria</th><th>Preço</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="produtos-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Usuários -->
+      <div id="asec-usuarios" class="admin-section">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Usuários</div>
+            <input class="search-bar" placeholder="🔍 Buscar usuário...">
+          </div>
+          <div id="usuarios-list"></div>
+        </div>
+      </div>
+
+      <!-- Estoque -->
+      <div id="asec-estoque" class="admin-section">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Controle de Estoque</div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-stock')">+ Adicionar Item</button>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Item</th><th>Categoria</th><th>Quantidade</th><th>Mínimo</th><th>Status</th><th>Custo</th><th>Ações</th></tr></thead>
+            <tbody id="estoque-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     MASTER SCREEN
+══════════════════════════════ -->
+<div id="screen-master" class="screen">
+  <div class="app-shell">
+    <div class="topbar">
+      <div class="topbar-logo">🔥 DK</div>
+      <div class="pill pill-gold" style="font-size:11px;font-weight:700;">⭐ MASTER</div>
+      <div class="topbar-user">
+        <div class="topbar-avatar" style="background:linear-gradient(135deg,var(--gold),#FF6B35);">🔱</div>
+        <span class="topbar-name">Super Admin</span>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="master-nav">
+        <button class="master-nav-btn active" onclick="switchMasterSection('visao',this)">🌐 Visão Global</button>
+        <button class="master-nav-btn" onclick="switchMasterSection('unidades',this)">🏪 Unidades</button>
+        <button class="master-nav-btn" onclick="switchMasterSection('admins',this)">🔑 Admins</button>
+        <button class="master-nav-btn" onclick="switchMasterSection('financeiro',this)">💰 Financeiro</button>
+        <button class="master-nav-btn" onclick="switchMasterSection('logs',this)">📋 Logs</button>
+        <button class="master-nav-btn" onclick="switchMasterSection('configuracoes',this)">⚙️ Config</button>
+      </div>
+
+      <!-- Visão Global -->
+      <div id="msec-visao" class="master-section active">
+        <div class="master-kpi-grid">
+          <div class="master-kpi gold">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-val" style="color:var(--gold)">R$48.200</div>
+            <div class="kpi-label">Faturamento Global Hoje</div>
+            <div class="kpi-delta up">↑ 22% vs ontem</div>
+          </div>
+          <div class="master-kpi green">
+            <div class="kpi-icon">📦</div>
+            <div class="kpi-val" style="color:var(--green)">312</div>
+            <div class="kpi-label">Pedidos Totais</div>
+            <div class="kpi-delta up">↑ 15%</div>
+          </div>
+          <div class="master-kpi blue">
+            <div class="kpi-icon">🛵</div>
+            <div class="kpi-val" style="color:var(--blue)">28</div>
+            <div class="kpi-label">Entregadores Ativos</div>
+            <div class="kpi-delta up">↑ 4 vs ontem</div>
+          </div>
+          <div class="master-kpi red">
+            <div class="kpi-icon">🏪</div>
+            <div class="kpi-val">6</div>
+            <div class="kpi-label">Unidades Operando</div>
+            <div class="kpi-delta" style="color:var(--green)">● Todas ativas</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Performance das Unidades</div>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Unidade</th><th>Faturamento</th><th>Pedidos</th><th>Entregadores</th><th>Avaliação</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><b>SP Centro</b></td><td style="color:var(--green);font-weight:700">R$12.400</td><td>84</td><td>7</td><td style="color:var(--gold)">★ 4.9</td><td><span class="pill pill-green">Ativa</span></td></tr>
+              <tr><td><b>SP Zona Sul</b></td><td style="color:var(--green);font-weight:700">R$9.800</td><td>67</td><td>5</td><td style="color:var(--gold)">★ 4.8</td><td><span class="pill pill-green">Ativa</span></td></tr>
+              <tr><td><b>RJ Barra</b></td><td style="color:var(--green);font-weight:700">R$8.200</td><td>58</td><td>4</td><td style="color:var(--gold)">★ 4.7</td><td><span class="pill pill-green">Ativa</span></td></tr>
+              <tr><td><b>BH Centro</b></td><td style="color:var(--green);font-weight:700">R$7.100</td><td>51</td><td>5</td><td style="color:var(--gold)">★ 4.8</td><td><span class="pill pill-green">Ativa</span></td></tr>
+              <tr><td><b>BSB Norte</b></td><td style="color:var(--green);font-weight:700">R$6.400</td><td>32</td><td>4</td><td style="color:var(--gold)">★ 4.6</td><td><span class="pill pill-green">Ativa</span></td></tr>
+              <tr><td><b>POA Centro</b></td><td style="color:var(--green);font-weight:700">R$4.300</td><td>20</td><td>3</td><td style="color:var(--gold)">★ 4.7</td><td><span class="pill pill-green">Ativa</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Unidades -->
+      <div id="msec-unidades" class="master-section">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+          <button class="btn btn-primary" onclick="openModal('modal-add-unit')">+ Nova Unidade</button>
+        </div>
+        <div class="unit-cards" id="unit-cards"></div>
+      </div>
+
+      <!-- Admins -->
+      <div id="msec-admins" class="master-section">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Administradores</div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-admin')">+ Adicionar Admin</button>
+          </div>
+          <div id="admins-list"></div>
+        </div>
+      </div>
+
+      <!-- Financeiro -->
+      <div id="msec-financeiro" class="master-section">
+        <div class="master-kpi-grid" style="margin-bottom:24px;">
+          <div class="master-kpi gold"><div class="kpi-icon">📅</div><div class="kpi-val" style="color:var(--gold)">R$1,24M</div><div class="kpi-label">Faturamento Anual</div></div>
+          <div class="master-kpi green"><div class="kpi-icon">📈</div><div class="kpi-val" style="color:var(--green)">R$312K</div><div class="kpi-label">Mês Atual</div></div>
+          <div class="master-kpi blue"><div class="kpi-icon">💸</div><div class="kpi-val" style="color:var(--blue)">R$48,2K</div><div class="kpi-label">Hoje</div></div>
+          <div class="master-kpi red"><div class="kpi-icon">💹</div><div class="kpi-val" style="color:var(--green)">+22%</div><div class="kpi-label">Crescimento MoM</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:16px;">Extrato por Unidade — Hoje</div>
+          <table class="data-table">
+            <thead><tr><th>Unidade</th><th>Receita Bruta</th><th>Comissão (15%)</th><th>Repasse</th><th>Pedidos</th></tr></thead>
+            <tbody>
+              <tr><td>SP Centro</td><td style="color:var(--green)">R$12.400</td><td style="color:var(--accent)">R$1.860</td><td>R$10.540</td><td>84</td></tr>
+              <tr><td>SP Zona Sul</td><td style="color:var(--green)">R$9.800</td><td style="color:var(--accent)">R$1.470</td><td>R$8.330</td><td>67</td></tr>
+              <tr><td>RJ Barra</td><td style="color:var(--green)">R$8.200</td><td style="color:var(--accent)">R$1.230</td><td>R$6.970</td><td>58</td></tr>
+              <tr><td>BH Centro</td><td style="color:var(--green)">R$7.100</td><td style="color:var(--accent)">R$1.065</td><td>R$6.035</td><td>51</td></tr>
+              <tr><td><b>TOTAL</b></td><td style="color:var(--green);font-weight:700">R$48.200</td><td style="color:var(--accent);font-weight:700">R$7.230</td><td style="font-weight:700">R$40.970</td><td style="font-weight:700">312</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Logs -->
+      <div id="msec-logs" class="master-section">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Log de Atividades</div>
+            <button class="btn btn-secondary btn-sm" onclick="showToast('Exportando logs...','info')">⬇ Exportar</button>
+          </div>
+          <div class="activity-log" id="activity-log"></div>
+        </div>
+      </div>
+
+      <!-- Configurações -->
+      <div id="msec-configuracoes" class="master-section">
+        <div class="config-sections">
+          <div class="config-section">
+            <h4>🏪 Sistema</h4>
+            <div class="config-row"><div><div class="config-label">Modo Manutenção</div><div class="config-desc">Bloquear acesso de clientes</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+            <div class="config-row"><div><div class="config-label">Aceitar Novos Pedidos</div><div class="config-desc">Permitir novos pedidos globalmente</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            <div class="config-row"><div><div class="config-label">Notificações Push</div><div class="config-desc">Enviar alertas para entregadores</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+          </div>
+          <div class="config-section">
+            <h4>💰 Financeiro</h4>
+            <div class="config-row"><div><div class="config-label">Taxa de Entrega Padrão</div><div class="config-desc">Valor base por pedido</div></div><div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--muted)">R$</span><input style="width:80px;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:14px;text-align:center;" value="5.90"></div></div>
+            <div class="config-row"><div><div class="config-label">Comissão da Plataforma</div><div class="config-desc">% sobre cada pedido</div></div><div style="display:flex;align-items:center;gap:8px;"><input style="width:60px;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:14px;text-align:center;" value="15"><span style="color:var(--muted)">%</span></div></div>
+          </div>
+          <div class="config-section">
+            <h4>⭐ Programa de Fidelidade</h4>
+            <div class="config-row"><div><div class="config-label">Pontos por R$1,00 gasto</div></div><input style="width:60px;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:14px;text-align:center;" value="10"></div>
+            <div class="config-row"><div><div class="config-label">Pontos para nível Gold</div></div><input style="width:80px;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:14px;text-align:center;" value="1000"></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;">
+            <button class="btn btn-primary" onclick="showToast('✓ Configurações salvas!','success')">💾 Salvar Configurações</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     MODALS
+══════════════════════════════ -->
+<div class="modal-overlay" id="modal-add-entregador">
+  <div class="modal">
+    <div class="modal-head"><h3>Novo Entregador</h3><button class="modal-close" onclick="closeModal('modal-add-entregador')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-row"><label>Nome Completo</label><input placeholder="Nome do entregador"></div>
+        <div class="form-row"><label>CPF</label><input placeholder="000.000.000-00"></div>
+        <div class="form-row"><label>E-mail</label><input type="email" placeholder="email@exemplo.com"></div>
+        <div class="form-row"><label>Telefone</label><input placeholder="(11) 99999-9999"></div>
+        <div class="form-row"><label>Veículo</label><select><option>🛵 Moto</option><option>🚲 Bicicleta</option><option>🚗 Carro</option></select></div>
+        <div class="form-row"><label>Placa</label><input placeholder="ABC-1234"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-entregador')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addEntregador()">✓ Cadastrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-produto">
+  <div class="modal">
+    <div class="modal-head"><h3>Novo Produto</h3><button class="modal-close" onclick="closeModal('modal-add-produto')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><label>Nome</label><input placeholder="Nome do produto"></div>
+      <div class="form-row"><label>Descrição</label><input placeholder="Ingredientes, preparo..."></div>
+      <div class="form-grid">
+        <div class="form-row"><label>Preço (R$)</label><input type="number" placeholder="0,00"></div>
+        <div class="form-row"><label>Tempo</label><input placeholder="~15 min"></div>
+        <div class="form-row"><label>Emoji</label><input placeholder="🍔" maxlength="4"></div>
+        <div class="form-row"><label>Categoria</label><select><option>burger</option><option>pizza</option><option>bowl</option><option>pasta</option><option>drink</option><option>dessert</option></select></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-produto')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addProduto()">✓ Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-admin">
+  <div class="modal">
+    <div class="modal-head"><h3>Novo Administrador</h3><button class="modal-close" onclick="closeModal('modal-add-admin')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><label>Nome Completo</label><input placeholder="Nome do admin"></div>
+      <div class="form-row"><label>E-mail</label><input type="email" placeholder="admin@darkkitchen.com"></div>
+      <div class="form-row"><label>Senha Inicial</label><input type="password" placeholder="Senha temporária"></div>
+      <div class="form-row"><label>Unidade</label><select><option>SP Centro</option><option>SP Zona Sul</option><option>RJ Barra</option><option>BH Centro</option></select></div>
+      <div class="form-row"><label>Permissão</label><select><option>Admin Unidade</option><option>Admin Regional</option></select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-admin')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addAdmin()">✓ Criar Admin</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-unit">
+  <div class="modal">
+    <div class="modal-head"><h3>Nova Unidade</h3><button class="modal-close" onclick="closeModal('modal-add-unit')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><label>Nome da Unidade</label><input placeholder="Ex: SP Vila Madalena"></div>
+      <div class="form-row"><label>Endereço</label><input placeholder="Rua, número, bairro, cidade"></div>
+      <div class="form-grid">
+        <div class="form-row"><label>CNPJ</label><input placeholder="00.000.000/0001-00"></div>
+        <div class="form-row"><label>Telefone</label><input placeholder="(11) 3000-0000"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-unit')">Cancelar</button>
+      <button class="btn btn-primary" onclick="showToast('✓ Unidade criada!','success');closeModal('modal-add-unit')">✓ Criar Unidade</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-stock">
+  <div class="modal">
+    <div class="modal-head"><h3>Adicionar ao Estoque</h3><button class="modal-close" onclick="closeModal('modal-add-stock')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-row"><label>Item</label><input placeholder="Nome do insumo"></div>
+        <div class="form-row"><label>Emoji</label><input placeholder="🥩" maxlength="4"></div>
+        <div class="form-row"><label>Quantidade</label><input type="number" placeholder="0"></div>
+        <div class="form-row"><label>Mínimo</label><input type="number" placeholder="0"></div>
+        <div class="form-row"><label>Unidade</label><select><option>un</option><option>kg</option><option>L</option><option>cx</option></select></div>
+        <div class="form-row"><label>Custo (R$)</label><input type="number" placeholder="0.00"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-stock')">Cancelar</button>
+      <button class="btn btn-primary" onclick="showToast('✓ Item adicionado!','success');closeModal('modal-add-stock')">✓ Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-profile">
+  <div class="modal">
+    <div class="modal-head"><h3>Editar Perfil</h3><button class="modal-close" onclick="closeModal('modal-edit-profile')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><label>Nome</label><input value="Marcos Silva"></div>
+      <div class="form-row"><label>Telefone</label><input value="(11) 98765-4321"></div>
+      <div class="form-row"><label>Nova Senha</label><input type="password" placeholder="Deixe em branco para não alterar"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit-profile')">Cancelar</button>
+      <button class="btn btn-primary" onclick="showToast('✓ Perfil atualizado!','success');closeModal('modal-edit-profile')">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-order-detail">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modal-order-title">Pedido #A019</h3><button class="modal-close" onclick="closeModal('modal-order-detail')">✕</button></div>
+    <div class="modal-body" id="modal-order-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-order-detail')">Fechar</button>
+      <button class="btn btn-success" onclick="advanceOrder()">→ Avançar Status</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+// ═══════════════════════════════════
+// DATA
+// ═══════════════════════════════════
+const CREDENTIALS = {
+  'entregador@dk.com': { pass:'entrega123', role:'entregador', name:'Marcos Silva' },
+  'cliente@dk.com':    { pass:'cliente123', role:'client',     name:'João Silva' },
+  'admin@dk.com':      { pass:'admin123',   role:'admin',      name:'Carlos Admin' },
+  'master@dk.com':     { pass:'master123',  role:'master',     name:'Super Admin' },
+};
+
+const MENU_ITEMS = [
+  {id:1,emoji:'🍔',name:'Smash Burger Duplo',desc:'2 patties, cheddar, molho especial, pickles',price:3990,time:'~15 min',cat:'burger',badge:'⭐ DESTAQUE',badgeColor:'rgba(255,184,0,.15)',badgeText:'var(--gold)'},
+  {id:2,emoji:'🍗',name:'Chicken Crispy',desc:'Frango crocante, coleslaw, cheddar, jalapeño',price:3200,time:'~18 min',cat:'burger'},
+  {id:3,emoji:'🥓',name:'BBQ Bacon Burger',desc:'Blend costela, bacon, gouda, molho BBQ defumado',price:4490,time:'~16 min',cat:'burger',badge:'🔥 NOVO',badgeColor:'rgba(255,69,0,.15)',badgeText:'var(--accent)'},
+  {id:4,emoji:'🥦',name:'Veggie Smash',desc:'Grão-de-bico, beterraba, queijo vegano, ervas',price:3490,time:'~14 min',cat:'burger',badge:'🌱 VEGAN',badgeColor:'rgba(139,195,74,.1)',badgeText:'#8bc34a'},
+  {id:5,emoji:'🍕',name:'Pizza Margherita',desc:'Molho artesanal, búfala, manjericão, azeite EV',price:4500,time:'~20 min',cat:'pizza'},
+  {id:6,emoji:'🍕',name:'Pizza Calabresa',desc:'Calabresa artesanal, cebola roxa, mussarela',price:5200,time:'~22 min',cat:'pizza',badge:'⭐ TOP',badgeColor:'rgba(255,184,0,.15)',badgeText:'var(--gold)'},
+  {id:7,emoji:'🥗',name:'Poke Bowl Salmão',desc:'Salmão marinado, edamame, manga, abacate',price:3990,time:'~10 min',cat:'bowl',badge:'💚 SAUDÁVEL',badgeColor:'rgba(0,200,83,.1)',badgeText:'var(--green)'},
+  {id:8,emoji:'🫐',name:'Açaí Power Bowl',desc:'Açaí 500ml, granola, banana, morango, mel',price:2890,time:'~5 min',cat:'bowl'},
+  {id:9,emoji:'🌮',name:'Birria Tacos',desc:'Carne desfiada, queijo oaxaca, cebola, coentro',price:3800,time:'~20 min',cat:'tacos'},
+  {id:10,emoji:'🍝',name:'Cacio e Pepe',desc:'Espaguete al dente, pecorino romano, pimenta',price:4200,time:'~18 min',cat:'pasta',badge:'⚡ CHEF',badgeColor:'rgba(255,184,0,.2)',badgeText:'var(--gold)'},
+  {id:11,emoji:'🍝',name:'Carbonara Clássica',desc:'Guanciale, ovos, pecorino, pimenta preta',price:4400,time:'~20 min',cat:'pasta'},
+  {id:12,emoji:'🥤',name:'Shake Pistache',desc:'Shake cremoso de pistache, chantilly artesanal',price:2400,time:'~5 min',cat:'drink',badge:'🌿 NOVO',badgeColor:'rgba(139,195,74,.2)',badgeText:'#8bc34a'},
+  {id:13,emoji:'🍋',name:'Limonada Suíça',desc:'Limão, leite condensado, sorvete, creme',price:1800,time:'~3 min',cat:'drink'},
+  {id:14,emoji:'🍫',name:'Brownie Vulcão',desc:'Brownie quentinho, sorvete baunilha, calda chocolate',price:2200,time:'~8 min',cat:'dessert'},
+  {id:15,emoji:'🍰',name:'Cheesecake de Frutas',desc:'Base de biscoito, creme de queijo, frutas vermelhas',price:1900,time:'~2 min',cat:'dessert'},
+];
+
+const ORDERS = [
+  {id:1,token:'#A019',customer:'Lucas Ferreira',address:'Rua das Acácias, 320',items:'Smash Burger Duplo × 2, Coca-Cola',total:9380,eta:'~12 min',time:'14:28',status:'pending'},
+  {id:2,token:'#A020',customer:'Mariana Costa',address:'Av. Paulista, 1200',items:'Pizza Margherita, Shake Pistache',total:6900,eta:'~8 min',time:'14:31',status:'pending'},
+  {id:3,token:'#A021',customer:'Rafael Souza',address:'Rua Augusta, 888',items:'Birria Tacos × 3, Limonada Suíça',total:12000,eta:'~5 min',time:'14:33',status:'preparing'},
+  {id:4,token:'#A022',customer:'Ana Lima',address:'Al. Santos, 455',items:'Poke Bowl Salmão, Açaí Power Bowl',total:6880,eta:'~2 min',time:'14:35',status:'preparing'},
+  {id:5,token:'#A018',customer:'Pedro Alves',address:'Rua Oscar Freire, 77',items:'Carbonara Clássica, Brownie Vulcão',total:6600,eta:'Pronto',time:'14:20',status:'done'},
+];
+
+const ENTREGADORES = [
+  {name:'Marcos Silva',email:'marcos@dk.com',veiculo:'🛵 Moto',status:'online',rating:'4.9',entregas:8,ganhos:'R$96'},
+  {name:'Fernanda Lima',email:'fernanda@dk.com',veiculo:'🛵 Moto',status:'online',rating:'4.8',entregas:6,ganhos:'R$72'},
+  {name:'Bruno Costa',email:'bruno@dk.com',veiculo:'🚲 Bicicleta',status:'online',rating:'4.7',entregas:4,ganhos:'R$48'},
+  {name:'Juliana Rocha',email:'juliana@dk.com',veiculo:'🛵 Moto',status:'offline',rating:'4.9',entregas:0,ganhos:'—'},
+  {name:'Carlos Mendes',email:'carlos@dk.com',veiculo:'🚗 Carro',status:'online',rating:'4.6',entregas:5,ganhos:'R$60'},
+];
+
+const USERS = [
+  {name:'Ana Lima',email:'ana@email.com',role:'client',status:'active',pts:1240,tier:'gold',avatar:'AL',color:'#FF4500'},
+  {name:'Pedro Alves',email:'pedro@email.com',role:'client',status:'active',pts:380,tier:'bronze',avatar:'PA',color:'#9C27B0'},
+  {name:'Mariana Costa',email:'mari@email.com',role:'client',status:'active',pts:2100,tier:'gold',avatar:'MC',color:'#2196F3'},
+  {name:'Lucas Ferreira',email:'lucas@email.com',role:'client',status:'blocked',pts:50,tier:'bronze',avatar:'LF',color:'#E91E63'},
+];
+
+const STOCK = [
+  {emoji:'🥩',name:'Hambúrguer 180g',cat:'carnes',qty:42,min:10,unit:'un',cost:'R$8,50',status:'ok'},
+  {emoji:'🍗',name:'Frango Crispy',cat:'carnes',qty:28,min:8,unit:'un',cost:'R$6,00',status:'ok'},
+  {emoji:'🥓',name:'Bacon Fatiado',cat:'carnes',qty:3,min:5,unit:'kg',cost:'R$32,00',status:'critical'},
+  {emoji:'🧀',name:'Mussarela',cat:'laticinios',qty:12,min:4,unit:'kg',cost:'R$28,00',status:'ok'},
+  {emoji:'🥬',name:'Alface',cat:'vegetais',qty:1,min:5,unit:'kg',cost:'R$4,50',status:'critical'},
+  {emoji:'🥤',name:'Coca-Cola 2L',cat:'bebidas',qty:0,min:12,unit:'un',cost:'R$5,50',status:'critical'},
+  {emoji:'🍞',name:'Pão Brioche',cat:'graos',qty:80,min:20,unit:'un',cost:'R$1,20',status:'ok'},
+  {emoji:'🧂',name:'Molho Especial',cat:'condimentos',qty:5,min:2,unit:'L',cost:'R$12,00',status:'ok'},
+];
+
+const REWARDS = [
+  {emoji:'🍔',name:'Burger Grátis',desc:'Smash Burger Duplo completo',pts:500,cat:'comida'},
+  {emoji:'🍕',name:'Pizza Inteira',desc:'Qualquer pizza do cardápio',pts:800,cat:'comida'},
+  {emoji:'🛵',name:'Frete Grátis',desc:'Próximo pedido sem taxa',pts:200,cat:'desconto'},
+  {emoji:'🏷️',name:'20% OFF',desc:'Desconto no próximo pedido',pts:300,cat:'desconto'},
+  {emoji:'🥤',name:'Shake Grátis',desc:'Qualquer shake do cardápio',pts:250,cat:'comida'},
+  {emoji:'🎁',name:'Kit Surpresa',desc:'Box exclusiva Dark Kitchen',pts:1000,cat:'especial'},
+  {emoji:'💸',name:'Cashback R$10',desc:'Crédito no próximo pedido',pts:400,cat:'desconto'},
+  {emoji:'🍮',name:'Sobremesa Grátis',desc:'Brownie ou Cheesecake',pts:350,cat:'comida'},
+];
+
+const UNITS = [
+  {name:'SP Centro',id:'DK-001',revenue:'R$12.400',orders:84,entregadores:7,status:'active'},
+  {name:'SP Zona Sul',id:'DK-002',revenue:'R$9.800',orders:67,entregadores:5,status:'active'},
+  {name:'RJ Barra',id:'DK-003',revenue:'R$8.200',orders:58,entregadores:4,status:'active'},
+  {name:'BH Centro',id:'DK-004',revenue:'R$7.100',orders:51,entregadores:5,status:'active'},
+  {name:'BSB Norte',id:'DK-005',revenue:'R$6.400',orders:32,entregadores:4,status:'active'},
+  {name:'POA Centro',id:'DK-006',revenue:'R$4.300',orders:20,entregadores:3,status:'active'},
+];
+
+const LOGS = [
+  {icon:'🔑',bg:'rgba(33,150,243,.1)',text:'<b>Carlos Admin</b> fez login — Unidade SP Centro',time:'14:38'},
+  {icon:'📦',bg:'rgba(255,69,0,.1)',text:'Pedido <b>#A022</b> criado — R$ 68,80',time:'14:35'},
+  {icon:'🛵',bg:'rgba(255,152,0,.1)',text:'<b>Marcos Silva</b> ficou online',time:'14:30'},
+  {icon:'✅',bg:'rgba(0,200,83,.1)',text:'Pedido <b>#A018</b> entregue com sucesso',time:'14:25'},
+  {icon:'⭐',bg:'rgba(255,184,0,.1)',text:'<b>Ana Lima</b> resgatou "Burger Grátis" — 500 pts',time:'14:20'},
+  {icon:'🔑',bg:'rgba(156,39,176,.1)',text:'<b>master@dk.com</b> acessou painel Master',time:'14:10'},
+  {icon:'📦',bg:'rgba(255,69,0,.1)',text:'Pedido <b>#A019</b> criado — R$ 93,80',time:'14:05'},
+  {icon:'⚠️',bg:'rgba(244,67,54,.1)',text:'Alerta de estoque: <b>Coca-Cola 2L</b> — crítico (0 un)',time:'13:55'},
+];
+
+const ADMINS = [
+  {name:'Carlos Admin',email:'admin@dk.com',unit:'SP Centro',role:'Admin Unidade',status:'active',avatar:'CA',color:'#2196F3'},
+  {name:'Beatriz Morais',email:'bea@dk.com',unit:'RJ Barra',role:'Admin Unidade',status:'active',avatar:'BM',color:'#9C27B0'},
+  {name:'Fernando Lima',email:'fernando@dk.com',unit:'BH Centro',role:'Admin Regional',status:'active',avatar:'FL',color:'#FF9800'},
+];
+
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+let currentRole = 'entregador';
+let cart = [];
+let cartCount = 0;
+let activeOrder = null;
+let currentMenuFilter = 'todos';
+let ordersData = JSON.parse(JSON.stringify(ORDERS));
+
+// ═══════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════
+function selectRole(role, el) {
+  document.querySelectorAll('.role-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  currentRole = role;
+}
+
+function fillDemo(email, pass, role) {
+  document.getElementById('login-email').value = email;
+  document.getElementById('login-password').value = pass;
+  // auto-select tab
+  document.querySelectorAll('.role-tab').forEach(t=>{
+    if(t.dataset.role===role){t.click();}
+  });
+}
+
+function togglePw() {
+  const inp = document.getElementById('login-password');
+  const btn = document.getElementById('pw-toggle');
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
+  else{inp.type='password';btn.textContent='👁';}
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('login-password').value;
+  const err   = document.getElementById('login-error');
+  const cred  = CREDENTIALS[email];
+  if(!cred || cred.pass!==pass) {
+    err.classList.add('visible');
+    setTimeout(()=>err.classList.remove('visible'),3000);
+    return;
+  }
+  err.classList.remove('visible');
+  showScreen('screen-'+cred.role);
+  currentRole = cred.role;
+  initScreen(cred.role);
+  showToast('✓ Bem-vindo, '+cred.name+'!','success');
+}
+
+function logout() {
+  showScreen('screen-login');
+  cart=[];cartCount=0;
+  document.getElementById('login-email').value='';
+  document.getElementById('login-password').value='';
+}
+
+// ═══════════════════════════════════
+// SCREEN MANAGER
+// ═══════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function initScreen(role) {
+  if(role==='client'){renderMenu();renderRewards();}
+  if(role==='admin'){renderAdminOrders();renderEntregadoresTable();renderProdutosTable();renderUsuariosList();renderEstoqueTable();renderAdminLive();}
+  if(role==='master'){renderUnitCards();renderAdminsList();renderLogs();renderEntregadoresOnline();}
+  if(role==='entregador'){renderPedidosDisponiveis();renderPedidosLista();}
+}
+
+// ═══════════════════════════════════
+// TABS
+// ═══════════════════════════════════
+function switchEntregadorTab(tab, el) {
+  document.querySelectorAll('.entregador-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.entregador-tab-content').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('etab-'+tab).classList.add('active');
+}
+
+function switchClientTab(tab, el) {
+  document.querySelectorAll('.client-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.client-tab-content').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ctab-'+tab).classList.add('active');
+}
+
+function switchAdminSection(sec, el) {
+  document.querySelectorAll('.admin-nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('asec-'+sec).classList.add('active');
+}
+
+function switchMasterSection(sec, el) {
+  document.querySelectorAll('.master-nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.master-section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('msec-'+sec).classList.add('active');
+}
+
+// ═══════════════════════════════════
+// MODAL
+// ═══════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+
+// ═══════════════════════════════════
+// TOAST
+// ═══════════════════════════════════
+let toastTimer;
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  clearTimeout(toastTimer);
+  t.className='toast toast-'+type+' show';
+  t.textContent=msg;
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ═══════════════════════════════════
+// ENTREGADOR FUNCS
+// ═══════════════════════════════════
+function renderPedidosDisponiveis() {
+  const el = document.getElementById('pedidos-disponiveis');
+  const data = ordersData.filter(o=>o.status==='pending');
+  if(!el) return;
+  el.innerHTML = data.length===0 ? '<div style="text-align:center;padding:30px;color:var(--muted);">Nenhum pedido disponível no momento</div>' :
+    data.map(o=>`
+      <div class="order-card" id="dispcard-${o.id}">
+        <div class="order-token">${o.token}</div>
+        <div class="order-info">
+          <div class="order-customer">${o.customer}</div>
+          <div class="order-address">📍 ${o.address}</div>
+          <div class="order-items">${o.items}</div>
+        </div>
+        <div class="order-right">
+          <div class="order-value">R$ ${(o.total/100).toFixed(2).replace('.',',')}</div>
+          <div class="order-eta">⏱ ${o.eta}</div>
+          <div class="order-actions">
+            <button class="btn btn-success btn-sm" onclick="aceitarPedido(${o.id})">✓ Aceitar</button>
+            <button class="btn btn-danger btn-sm" onclick="recusarPedido(${o.id})">✗</button>
+          </div>
+        </div>
+      </div>`).join('');
+}
+
+function renderPedidosLista() {
+  const el = document.getElementById('pedidos-lista');
+  if(!el) return;
+  el.innerHTML = ordersData.filter(o=>o.status!=='done').map(o=>`
+    <div class="order-card">
+      <div class="order-token">${o.token}</div>
+      <div class="order-info">
+        <div class="order-customer">${o.customer}</div>
+        <div class="order-address">📍 ${o.address}</div>
+        <div class="order-items">${o.items}</div>
+      </div>
+      <div class="order-right">
+        <div class="order-value">R$ ${(o.total/100).toFixed(2).replace('.',',')}</div>
+        <span class="pill ${o.status==='pending'?'pill-orange':o.status==='preparing'?'pill-blue':'pill-green'}">
+          ${o.status==='pending'?'⏳ Aguardando':o.status==='preparing'?'🍳 Em Preparo':'✓ Pronto'}
+        </span>
+      </div>
+    </div>`).join('');
+}
+
+function aceitarPedido(id) {
+  const order = ordersData.find(o=>o.id===id);
+  if(!order){return;}
+  activeOrder = order;
+  order.status='preparing';
+  document.getElementById('rota-empty').style.display='none';
+  document.getElementById('rota-active').style.display='block';
+  document.getElementById('rota-token').textContent='Pedido '+order.token;
+  document.getElementById('rota-customer').textContent=order.customer;
+  renderPedidosDisponiveis();
+  renderPedidosLista();
+  // switch tab to rota
+  document.querySelectorAll('.entregador-tab')[2].click();
+  showToast('✓ Pedido '+order.token+' aceito!','success');
+}
+
+function recusarPedido(id) {
+  showToast('Pedido recusado','info');
+}
+
+function confirmarEntrega() {
+  if(!activeOrder) return;
+  // Animate steps
+  document.getElementById('rstep-2').classList.remove('active');
+  document.getElementById('rstep-2').classList.add('done');
+  document.getElementById('rstep-3').classList.add('done');
+  activeOrder.status='done';
+  showToast('✅ Entrega confirmada! +R$12,00','success');
+  setTimeout(()=>{
+    document.getElementById('rota-empty').style.display='block';
+    document.getElementById('rota-active').style.display='none';
+    activeOrder=null;
+    // reset steps
+    ['rstep-2','rstep-3'].forEach(id=>{
+      document.getElementById(id).classList.remove('done','active');
+    });
+    document.getElementById('rstep-2').classList.add('active');
+  },2500);
+}
+
+function toggleOnline(el) {
+  const label = document.getElementById('online-label');
+  const pill = document.getElementById('entregador-online-pill');
+  if(el.checked){
+    label.textContent='Você está ONLINE';
+    label.style.color='var(--green)';
+    pill.className='pill pill-green';
+    pill.textContent='● ONLINE';
+    showToast('✓ Você está online — recebendo pedidos!','success');
+  } else {
+    label.textContent='Você está OFFLINE';
+    label.style.color='';
+    pill.className='pill pill-gray';
+    pill.textContent='● OFFLINE';
+    showToast('Você ficou offline','info');
+  }
+}
+
+function selectVehicle(v, el) {
+  document.querySelectorAll('.vehicle-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const labels={moto:'ABC-1234',bike:'N/A (Bicicleta)',carro:'DEF-5678'};
+  document.getElementById('vehicle-plate').value=labels[v]||'';
+  showToast('Veículo alterado: '+el.querySelector('.v-name').textContent,'info');
+}
+
+const PERIOD_DATA={
+  hoje:  {total:'R$ 96,00',count:'8',avg:'R$ 12,00',tip:'R$ 18,00'},
+  semana:{total:'R$ 624,00',count:'52',avg:'R$ 12,00',tip:'R$ 104,00'},
+  mes:   {total:'R$ 2.880,00',count:'240',avg:'R$ 12,00',tip:'R$ 520,00'},
+};
+function setPeriod(period, el) {
+  document.querySelectorAll('.earnings-period button').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const d=PERIOD_DATA[period];
+  document.getElementById('earn-total').textContent=d.total;
+  document.getElementById('earn-count').textContent=d.count;
+  document.getElementById('earn-avg').textContent=d.avg;
+  document.getElementById('earn-tip').textContent=d.tip;
+}
+
+// ═══════════════════════════════════
+// CLIENT FUNCS
+// ═══════════════════════════════════
+function renderMenu(filter='todos') {
+  const items = filter==='todos' ? MENU_ITEMS : MENU_ITEMS.filter(i=>i.cat===filter);
+  document.getElementById('menu-grid').innerHTML = items.map(i=>`
+    <div class="menu-item" onclick="addToCart(${i.id})">
+      ${i.badge?`<div class="item-badge" style="background:${i.badgeColor||'rgba(255,184,0,.15)'};color:${i.badgeText||'var(--gold)'};">${i.badge}</div>`:''}
+      <div class="menu-item-emoji">${i.emoji}</div>
+      <div class="menu-item-name">${i.name}</div>
+      <div class="menu-item-desc">${i.desc}</div>
+      <div class="menu-item-footer">
+        <div class="menu-item-price">R$ ${(i.price/100).toFixed(2).replace('.',',')}</div>
+        <div>
+          <div class="menu-item-time">⏱ ${i.time}</div>
+          <button class="add-btn" onclick="event.stopPropagation();addToCart(${i.id})">+ Add</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function filterMenu(cat, el) {
+  document.querySelectorAll('#ctab-menu .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  currentMenuFilter=cat;
+  renderMenu(cat);
+}
+
+function addToCart(id) {
+  const item=MENU_ITEMS.find(i=>i.id===id);
+  if(!item)return;
+  const existing=cart.find(c=>c.id===id);
+  if(existing){ existing.qty++; }
+  else{ cart.push({...item,qty:1}); }
+  cartCount++;
+  document.getElementById('cart-badge').textContent=cartCount;
+  renderCart();
+  showToast(item.emoji+' '+item.name+' adicionado!','success');
+}
+
+function updateQty(id, delta) {
+  const c=cart.find(c=>c.id===id);
+  if(!c)return;
+  c.qty+=delta;
+  if(c.qty<=0){ cart=cart.filter(c=>c.id!==id); }
+  cartCount=cart.reduce((s,c)=>s+c.qty,0);
+  document.getElementById('cart-badge').textContent=cartCount;
+  renderCart();
+}
+
+function renderCart() {
+  const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
+  document.getElementById('cart-empty').style.display=cart.length?'none':'block';
+  document.getElementById('cart-filled').style.display=cart.length?'block':'none';
+  document.getElementById('cart-items-list').innerHTML=cart.map(c=>`
+    <div class="cart-item">
+      <div class="cart-item-emoji">${c.emoji}</div>
+      <div class="cart-item-name">${c.name}</div>
+      <div class="qty-controls">
+        <button class="qty-btn" onclick="updateQty(${c.id},-1)">−</button>
+        <span class="qty-num">${c.qty}</span>
+        <button class="qty-btn" onclick="updateQty(${c.id},+1)">+</button>
+      </div>
+      <div class="cart-item-price">R$ ${((c.price*c.qty)/100).toFixed(2).replace('.',',')}</div>
+    </div>`).join('');
+  document.getElementById('cart-total-val').textContent='R$ '+(total/100).toFixed(2).replace('.',',');
+}
+
+function fazerPedido() {
+  if(cart.length===0){showToast('Carrinho vazio!','error');return;}
+  const addr=document.getElementById('delivery-address').value;
+  if(!addr.trim()){showToast('Informe o endereço de entrega','error');return;}
+  cart=[];cartCount=0;
+  document.getElementById('cart-badge').textContent=0;
+  renderCart();
+  showToast('✅ Pedido realizado! Acompanhe em Rastreio','success');
+  // switch to tracking
+  document.querySelectorAll('.client-tab')[2].click();
+}
+
+function renderRewards() {
+  document.getElementById('rewards-grid').innerHTML=REWARDS.map(r=>`
+    <div class="reward-card" onclick="resgatarRecompensa('${r.name}',${r.pts})">
+      <div class="reward-emoji">${r.emoji}</div>
+      <div class="reward-name">${r.name}</div>
+      <div class="reward-desc">${r.desc}</div>
+      <div class="reward-pts">${r.pts} <span>pontos</span></div>
+    </div>`).join('');
+}
+
+function resgatarRecompensa(name, pts) {
+  showToast('🎁 "'+name+'" resgatado! −'+pts+' pts','success');
+}
+
+// ═══════════════════════════════════
+// ADMIN FUNCS
+// ═══════════════════════════════════
+function renderAdminOrders() {
+  const tbody=document.getElementById('admin-orders-body');
+  if(!tbody)return;
+  tbody.innerHTML=ordersData.map(o=>`
+    <tr>
+      <td style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent)">${o.token}</td>
+      <td style="font-weight:600">${o.customer}</td>
+      <td style="color:var(--muted);font-size:12px;max-width:200px">${o.items}</td>
+      <td style="color:var(--green);font-family:'Bebas Neue',cursive;font-size:18px">R$${(o.total/100).toFixed(2).replace('.',',')}</td>
+      <td style="font-family:'DM Mono',monospace;color:var(--muted)">${o.eta}</td>
+      <td><span class="pill ${o.status==='pending'?'pill-orange':o.status==='preparing'?'pill-blue':'pill-green'}">
+        ${o.status==='pending'?'⏳ Pendente':o.status==='preparing'?'🍳 Preparo':'✓ Pronto'}
+      </span></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm" onclick="viewOrderDetail(${o.id})">👁</button>
+          <button class="btn btn-success btn-sm" onclick="advanceOrderAdmin(${o.id})">→</button>
+          <button class="btn btn-danger btn-sm" onclick="cancelOrderAdmin(${o.id})">✗</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderAdminLive() {
+  const el = document.getElementById('admin-pedidos-live');
+  if(!el)return;
+  el.innerHTML=ordersData.filter(o=>o.status!=='done').slice(0,3).map(o=>`
+    <div class="order-card" style="padding:12px 14px;">
+      <div class="order-token" style="font-size:18px;">${o.token}</div>
+      <div class="order-info">
+        <div class="order-customer" style="font-size:13px;">${o.customer}</div>
+        <div class="order-items" style="font-size:11px;">${o.items}</div>
+      </div>
+      <div class="order-right">
+        <span class="pill ${o.status==='pending'?'pill-orange':'pill-blue'}" style="font-size:10px;">${o.status==='pending'?'⏳':'🍳'}</span>
+        <button class="btn btn-success btn-sm" style="font-size:11px;" onclick="advanceOrderAdmin(${o.id})">→</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderEntregadoresOnline() {
+  const el=document.getElementById('entregadores-online');
+  if(!el)return;
+  el.innerHTML=ENTREGADORES.filter(e=>e.status==='online').map(e=>`
+    <div class="admin-user-row">
+      <div class="user-avatar-sm" style="background:linear-gradient(135deg,#FF9800,#FF4500);">${e.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+      <div class="user-info"><div class="user-name" style="font-size:13px;">${e.name}</div><div class="user-email">${e.veiculo} · ${e.entregas} entregas</div></div>
+      <span class="pill pill-green" style="font-size:10px;">● Online</span>
+    </div>`).join('');
+}
+
+function viewOrderDetail(id) {
+  const o=ordersData.find(o=>o.id===id);
+  if(!o)return;
+  document.getElementById('modal-order-title').textContent='Pedido '+o.token;
+  document.getElementById('modal-order-body').innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted)">Cliente</span><b>${o.customer}</b></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted)">Endereço</span><b>${o.address}</b></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted)">Itens</span><span style="text-align:right;max-width:240px;">${o.items}</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted)">Total</span><b style="color:var(--green);font-family:'Bebas Neue',cursive;font-size:22px;">R$${(o.total/100).toFixed(2).replace('.',',')}</b></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted)">ETA</span><b>${o.eta}</b></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted)">Status</span>
+        <span class="pill ${o.status==='pending'?'pill-orange':o.status==='preparing'?'pill-blue':'pill-green'}">
+          ${o.status==='pending'?'⏳ Pendente':o.status==='preparing'?'🍳 Em Preparo':'✓ Pronto'}
+        </span>
+      </div>
+    </div>`;
+  openModal('modal-order-detail');
+}
+
+function advanceOrderAdmin(id) {
+  const o=ordersData.find(o=>o.id===id);
+  if(!o)return;
+  if(o.status==='pending')o.status='preparing';
+  else if(o.status==='preparing')o.status='done';
+  renderAdminOrders();renderAdminLive();
+  showToast('Pedido '+o.token+' atualizado','success');
+}
+
+function cancelOrderAdmin(id) {
+  const o=ordersData.find(o=>o.id===id);
+  if(!o)return;
+  ordersData=ordersData.filter(o=>o.id!==id);
+  renderAdminOrders();renderAdminLive();
+  showToast('Pedido '+o.token+' cancelado','info');
+}
+
+function advanceOrder() {
+  const title=document.getElementById('modal-order-title').textContent;
+  showToast(title+' avançado!','success');
+  closeModal('modal-order-detail');
+}
+
+function filterOrders(status, el) {
+  document.querySelectorAll('.orders-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const filtered = status==='todos'?ordersData:ordersData.filter(o=>o.status===status);
+  const tbody=document.getElementById('admin-orders-body');
+  if(!tbody)return;
+  // re-render with filtered
+  const saved=ordersData;
+  const temp=filtered;
+  document.getElementById('admin-orders-body').innerHTML=temp.map(o=>`
+    <tr>
+      <td style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent)">${o.token}</td>
+      <td style="font-weight:600">${o.customer}</td>
+      <td style="color:var(--muted);font-size:12px;">${o.items}</td>
+      <td style="color:var(--green);font-family:'Bebas Neue',cursive;font-size:18px;">R$${(o.total/100).toFixed(2).replace('.',',')}</td>
+      <td style="font-family:'DM Mono',monospace;color:var(--muted)">${o.eta}</td>
+      <td><span class="pill ${o.status==='pending'?'pill-orange':o.status==='preparing'?'pill-blue':'pill-green'}">
+        ${o.status==='pending'?'⏳ Pendente':o.status==='preparing'?'🍳 Preparo':'✓ Pronto'}
+      </span></td>
+      <td><div style="display:flex;gap:6px;">
+        <button class="btn btn-secondary btn-sm" onclick="viewOrderDetail(${o.id})">👁</button>
+        <button class="btn btn-success btn-sm" onclick="advanceOrderAdmin(${o.id})">→</button>
+        <button class="btn btn-danger btn-sm" onclick="cancelOrderAdmin(${o.id})">✗</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function searchOrders(val) {
+  const v=val.toLowerCase();
+  const filtered=ordersData.filter(o=>o.token.toLowerCase().includes(v)||o.customer.toLowerCase().includes(v)||o.items.toLowerCase().includes(v));
+  document.getElementById('admin-orders-body').innerHTML=filtered.map(o=>`
+    <tr>
+      <td style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent)">${o.token}</td>
+      <td style="font-weight:600">${o.customer}</td>
+      <td style="color:var(--muted);font-size:12px;">${o.items}</td>
+      <td style="color:var(--green);font-family:'Bebas Neue',cursive;font-size:18px;">R$${(o.total/100).toFixed(2).replace('.',',')}</td>
+      <td style="font-family:'DM Mono',monospace;color:var(--muted)">${o.eta}</td>
+      <td><span class="pill ${o.status==='pending'?'pill-orange':o.status==='preparing'?'pill-blue':'pill-green'}">
+        ${o.status==='pending'?'⏳ Pendente':o.status==='preparing'?'🍳 Preparo':'✓ Pronto'}
+      </span></td>
+      <td><div style="display:flex;gap:6px;">
+        <button class="btn btn-secondary btn-sm" onclick="viewOrderDetail(${o.id})">👁</button>
+        <button class="btn btn-success btn-sm" onclick="advanceOrderAdmin(${o.id})">→</button>
+        <button class="btn btn-danger btn-sm" onclick="cancelOrderAdmin(${o.id})">✗</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function renderEntregadoresTable() {
+  const tbody=document.getElementById('entregadores-table');
+  if(!tbody)return;
+  tbody.innerHTML=ENTREGADORES.map((e,i)=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF9800,#FF4500);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">${e.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+        <div><div style="font-weight:600">${e.name}</div><div style="font-size:11px;color:var(--muted)">${e.email}</div></div>
+      </div></td>
+      <td>${e.veiculo}</td>
+      <td><span class="pill ${e.status==='online'?'pill-green':'pill-gray'}">${e.status==='online'?'● Online':'● Offline'}</span></td>
+      <td style="color:var(--gold)">★ ${e.rating}</td>
+      <td style="font-weight:600">${e.entregas}</td>
+      <td style="color:var(--green);font-weight:700">${e.ganhos}</td>
+      <td><div style="display:flex;gap:6px;">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Enviando mensagem...','info')">💬</button>
+        <button class="btn btn-${e.status==='online'?'warning':'success'} btn-sm" onclick="toggleEntregador(${i},this)">${e.status==='online'?'Suspender':'Ativar'}</button>
+        <button class="btn btn-danger btn-sm" onclick="showToast('Entregador removido','info')">✗</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function toggleEntregador(i, btn) {
+  ENTREGADORES[i].status = ENTREGADORES[i].status==='online'?'offline':'online';
+  renderEntregadoresTable();
+  showToast('Status do entregador atualizado','success');
+}
+
+function renderProdutosTable() {
+  const tbody=document.getElementById('produtos-body');
+  if(!tbody)return;
+  tbody.innerHTML=MENU_ITEMS.map(i=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:22px;">${i.emoji}</span><div><div style="font-weight:600;">${i.name}</div><div style="font-size:11px;color:var(--muted);">${i.desc.slice(0,40)}...</div></div></div></td>
+      <td><span class="pill pill-gray">${i.cat}</span></td>
+      <td style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--green)">R$${(i.price/100).toFixed(2).replace('.',',')}</td>
+      <td><span class="pill pill-green">✓ Ativo</span></td>
+      <td><div style="display:flex;gap:6px;">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Editando produto...','info')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="showToast('Produto desativado','info')">✗</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function renderUsuariosList() {
+  const el=document.getElementById('usuarios-list');
+  if(!el)return;
+  el.innerHTML=USERS.map(u=>`
+    <div class="admin-user-row">
+      <div class="user-avatar-sm" style="background:${u.color};">${u.avatar}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name}</div>
+        <div class="user-email">${u.email} · ${u.pts} pts · <span style="text-transform:capitalize">${u.tier}</span></div>
+      </div>
+      <span class="pill ${u.status==='active'?'pill-green':'pill-red'}">${u.status==='active'?'Ativo':'Bloqueado'}</span>
+      <div class="user-actions">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Abrindo perfil de '+u.name,'info')">👁</button>
+        <button class="btn btn-${u.status==='active'?'warning':'success'} btn-sm" onclick="showToast('Status alterado','success')">
+          ${u.status==='active'?'Bloquear':'Ativar'}
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+function renderEstoqueTable() {
+  const tbody=document.getElementById('estoque-body');
+  if(!tbody)return;
+  tbody.innerHTML=STOCK.map(s=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:20px;">${s.emoji}</span><b>${s.name}</b></div></td>
+      <td style="color:var(--muted)">${s.cat}</td>
+      <td style="font-weight:700;${s.status==='critical'?'color:#f44336':s.status==='low'?'color:var(--gold)':'color:var(--text)'}">${s.qty} ${s.unit}</td>
+      <td style="color:var(--muted)">${s.min} ${s.unit}</td>
+      <td><span class="pill ${s.status==='ok'?'pill-green':s.status==='low'?'pill-gold':'pill-red'}">
+        ${s.status==='ok'?'✓ OK':s.status==='low'?'⚠ Baixo':'🔴 Crítico'}
+      </span></td>
+      <td style="color:var(--muted)">${s.cost}</td>
+      <td><div style="display:flex;gap:6px;">
+        <button class="btn btn-success btn-sm" onclick="showToast('Reposição solicitada!','success')">+ Repor</button>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Editando...','info')">✏️</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function addEntregador() {
+  showToast('✓ Entregador cadastrado com sucesso!','success');
+  closeModal('modal-add-entregador');
+  renderEntregadoresTable();
+}
+
+function addProduto() {
+  showToast('✓ Produto adicionado ao cardápio!','success');
+  closeModal('modal-add-produto');
+}
+
+// ═══════════════════════════════════
+// MASTER FUNCS
+// ═══════════════════════════════════
+function renderUnitCards() {
+  document.getElementById('unit-cards').innerHTML=UNITS.map(u=>`
+    <div class="unit-card">
+      <div class="unit-name">${u.name}</div>
+      <div class="unit-id">${u.id}</div>
+      <div class="unit-stats">
+        <div class="unit-stat"><div class="unit-stat-val" style="color:var(--green)">${u.revenue}</div><div class="unit-stat-lbl">Faturamento</div></div>
+        <div class="unit-stat"><div class="unit-stat-val">${u.orders}</div><div class="unit-stat-lbl">Pedidos</div></div>
+        <div class="unit-stat"><div class="unit-stat-val" style="color:#FF9800">${u.entregadores}</div><div class="unit-stat-lbl">Entregadores</div></div>
+        <div class="unit-stat"><div class="unit-stat-val"><span class="pill pill-green" style="font-size:10px;">✓ Ativa</span></div><div class="unit-stat-lbl">Status</div></div>
+      </div>
+      <div class="unit-footer">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Acessando '+u.name,'info')">→ Acessar</button>
+        <button class="btn btn-danger btn-sm" onclick="showToast('Unidade pausada','info')">⏸ Pausar</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderAdminsList() {
+  const el=document.getElementById('admins-list');
+  if(!el)return;
+  el.innerHTML=ADMINS.map(a=>`
+    <div class="admin-user-row">
+      <div class="user-avatar-sm" style="background:${a.color};">${a.avatar}</div>
+      <div class="user-info">
+        <div class="user-name">${a.name}</div>
+        <div class="user-email">${a.email} · ${a.unit} · ${a.role}</div>
+      </div>
+      <span class="pill pill-green">Ativo</span>
+      <div class="user-actions">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Editando admin...','info')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="showToast('Admin suspenso','info')">Suspender</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderLogs() {
+  const el=document.getElementById('activity-log');
+  if(!el)return;
+  el.innerHTML=LOGS.map(l=>`
+    <div class="log-item">
+      <div class="log-icon" style="background:${l.bg}">${l.icon}</div>
+      <div class="log-text">${l.text}</div>
+      <div class="log-time">${l.time}</div>
+    </div>`).join('');
+}
+
+function addAdmin() {
+  showToast('✓ Administrador criado!','success');
+  closeModal('modal-add-admin');
+}
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+// Pre-render menu for speed
+renderMenu();
+</script>
+</body>
+</html>
