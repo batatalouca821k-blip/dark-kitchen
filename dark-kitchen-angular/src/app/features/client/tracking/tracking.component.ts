@@ -18,6 +18,8 @@ const STEPS = [
   template: `
   <div class="tracking-shell">
 
+    <button class="back-button" routerLink="/client">← Voltar ao cardápio</button>
+
     <!-- Token display -->
     <div class="token-display">
       <div class="token-label">NÚMERO DO PEDIDO</div>
@@ -120,6 +122,9 @@ const STEPS = [
     .order-mini-item:last-child { border-bottom: none; }
     .omi-name  { color: var(--muted); }
     .omi-price { font-family: 'DM Mono', monospace; color: var(--accent2); }
+
+    .back-button { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--text); text-decoration: none; font-weight: 700; }
+    .back-button:hover { border-color: var(--accent); color: var(--accent); }
 
     .advance-btn { width: 100%; padding: 12px; background: transparent; color: var(--muted); border: 1px dashed var(--border); border-radius: var(--r); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
     .advance-btn:hover { border-color: var(--accent); color: var(--accent); }

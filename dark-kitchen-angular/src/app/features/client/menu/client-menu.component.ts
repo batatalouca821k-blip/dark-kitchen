@@ -44,7 +44,7 @@ import { ProductModalComponent } from './product-modal.component';
           </div>
         </div>
       </div>
-      <button class="profile-edit-btn" (click)="toast.show('✅ Perfil atualizado!','success')">✏️ Editar</button>
+      <button class="profile-edit-btn" routerLink="/profile" type="button">✏️ Editar</button>
     </div>
 
     <!-- POINTS BAR -->
