@@ -15,6 +15,7 @@ import { AdminLoyaltyComponent } from './features/admin/loyalty-admin/admin-loya
 import { AdminMarketComponent } from './features/admin/market/admin-market.component';
 import { AdminDeliveryComponent } from './features/admin/delivery/admin-delivery.component';
 import { EntregadorComponent } from './features/entregador/entregador.component';
+import { KitchenComponent } from './features/kitchen/kitchen.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -25,6 +26,7 @@ export const routes: Routes = [
   { path: 'tracking',    component: TrackingComponent },
   { path: 'loyalty',     component: LoyaltyComponent },
   { path: 'profile',     component: ClientProfileComponent },
+  { path: 'cozinha',     component: KitchenComponent },
   {
     path: 'admin',
     component: AdminShellComponent,
@@ -38,6 +40,7 @@ export const routes: Routes = [
       { path: 'delivery',  component: AdminDeliveryComponent },
       { path: 'loyalty',   component: AdminLoyaltyComponent },
       { path: 'market',    component: AdminMarketComponent },
+      { path: 'cozinha',   component: KitchenComponent },
     ]
   },
   { path: '**', redirectTo: 'login' }

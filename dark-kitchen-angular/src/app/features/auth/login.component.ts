@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 
-type LoginRole = 'entregador' | 'client' | 'admin';
+type LoginRole = 'entregador' | 'client' | 'admin' | 'cozinha';
 
 @Component({
   selector: 'app-login',
@@ -66,6 +66,7 @@ type LoginRole = 'entregador' | 'client' | 'admin';
               <div class="demo-cred" (click)="fillDemo('entregador@dk.com','entrega123','entregador')">🛵 <span>entregador&#64;dk.com</span> / entrega123</div>
               <div class="demo-cred" (click)="fillDemo('cliente@dk.com','cliente123','client')">👤 <span>cliente&#64;dk.com</span> / cliente123</div>
               <div class="demo-cred" (click)="fillDemo('admin@dk.com','admin123','admin')">🔑 <span>admin&#64;dk.com</span> / admin123</div>
+              <div class="demo-cred" (click)="fillDemo('cozinha@dk.com','cozinha123','cozinha')">🍳 <span>cozinha&#64;dk.com</span> / cozinha123</div>
             </div>
           </div>
         </div>
@@ -150,6 +151,7 @@ type LoginRole = 'entregador' | 'client' | 'admin';
     .role-tab[data-role="client"].active { color: var(--green); }
     .role-tab[data-role="entregador"].active { color: #FF9800; }
     .role-tab[data-role="admin"].active { color: var(--blue); }
+    .role-tab[data-role="cozinha"].active { color: #FF5722; }
 
     .login-body {
       padding: 24px 36px 32px;
@@ -345,7 +347,8 @@ export class LoginComponent {
   roles: { id: LoginRole; label: string }[] = [
     { id: 'entregador', label: '🛵 Entregador' },
     { id: 'client', label: '👤 Cliente' },
-    { id: 'admin', label: '🔑 Admin' }
+    { id: 'admin', label: '🔑 Admin' },
+    { id: 'cozinha', label: '🍳 Cozinha' }
   ];
 
   submit() {
@@ -357,13 +360,26 @@ export class LoginComponent {
       return;
     }
 
-    if (role === 'admin') {
-      this.auth.loginAsAdmin();
+    if (!this.email || !this.password) {
+      this.loginError = 'Preencha email e senha para continuar.';
       return;
     }
 
-    if (!this.email || !this.password) {
-      this.loginError = 'Preencha email e senha para continuar.';
+    if (role === 'cozinha') {
+      if (this.email.toLowerCase() === 'cozinha@dk.com' && this.password === 'cozinha123') {
+        this.auth.loginAsCozinha('Equipe Cozinha');
+        return;
+      }
+      this.loginError = 'Email ou senha da cozinha incorretos.';
+      return;
+    }
+
+    if (role === 'admin') {
+      if (this.email.toLowerCase() === 'admin@dk.com' && this.password === 'admin123') {
+        this.auth.loginAsAdmin();
+        return;
+      }
+      this.loginError = 'Email ou senha do admin incorretos.';
       return;
     }
 

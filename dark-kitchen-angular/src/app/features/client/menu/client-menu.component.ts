@@ -94,7 +94,10 @@ import { ProductModalComponent } from './product-modal.component';
       <div class="featured-scroll">
         <div class="featured-card" *ngFor="let p of featuredProducts()" (click)="openModal(p)">
           <div class="fc-badge" *ngIf="p.badge" [innerHTML]="p.badge"></div>
-          <div class="fc-emoji">{{ p.emoji }}</div>
+          <div class="fc-emoji">
+            <img *ngIf="p.imageUrl" [src]="p.imageUrl" [alt]="p.name" style="width:64px;height:64px;object-fit:cover;border-radius:8px" />
+            <span *ngIf="!p.imageUrl">{{ p.emoji }}</span>
+          </div>
           <div class="fc-name">{{ p.name }}</div>
           <div class="fc-price">{{ data.formatPrice(p.price) }}</div>
           <div class="fc-time">{{ p.time }}</div>
@@ -112,7 +115,10 @@ import { ProductModalComponent } from './product-modal.component';
           <div class="cat-divider"><span>{{ group.label }}</span></div>
           <div class="product-card" *ngFor="let p of group.items" (click)="openModal(p)">
             <div class="product-badge" *ngIf="p.badge" [innerHTML]="p.badge"></div>
-            <div class="product-emoji">{{ p.emoji }}</div>
+            <div class="product-emoji">
+              <img *ngIf="p.imageUrl" [src]="p.imageUrl" [alt]="p.name" style="width:64px;height:64px;object-fit:cover;border-radius:12px" />
+              <span *ngIf="!p.imageUrl">{{ p.emoji }}</span>
+            </div>
             <div class="product-info">
               <div class="product-name">{{ p.name }}</div>
               <div class="product-desc">{{ p.desc }}</div>

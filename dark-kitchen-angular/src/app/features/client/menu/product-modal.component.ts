@@ -15,7 +15,10 @@ import { DataService } from '../../../core/services/data.service';
       <div class="modal-handle"></div>
 
       <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px">
-        <div style="font-size:52px">{{ product.emoji }}</div>
+        <div style="width:72px;height:72px;flex-shrink:0">
+          <img *ngIf="product.imageUrl" [src]="product.imageUrl" [alt]="product.name" style="width:100%;height:100%;object-fit:cover;border-radius:12px" />
+          <div *ngIf="!product.imageUrl" style="font-size:52px">{{ product.emoji }}</div>
+        </div>
         <div>
           <div class="modal-title">{{ product.name }}</div>
           <div class="modal-price">{{ data.formatPrice(product.price) }}</div>

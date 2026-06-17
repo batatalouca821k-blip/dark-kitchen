@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
-export type AuthRole = 'client' | 'admin' | 'entregador' | null;
+export type AuthRole = 'client' | 'admin' | 'entregador' | 'cozinha' | null;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -26,6 +26,12 @@ export class AuthService {
     this.role.set('entregador');
     this.userName.set('Marcos Silva');
     this.router.navigate(['/entregador']);
+  }
+
+  loginAsCozinha(name = 'Cozinha') {
+    this.role.set('cozinha');
+    this.userName.set(name);
+    this.router.navigate(['/cozinha']);
   }
 
   logout() {

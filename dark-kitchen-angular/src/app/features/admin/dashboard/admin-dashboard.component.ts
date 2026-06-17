@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataService } from '../../../core/services/data.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -14,7 +14,7 @@ import { ToastService } from '../../../core/services/toast.service';
 
     <!-- KPIs -->
     <div class="kpi-grid">
-      <div class="kpi-card" *ngFor="let k of kpis">
+      <div class="kpi-card" *ngFor="let k of kpis()">
         <div class="kpi-label">{{ k.label }}</div>
         <div class="kpi-value" [style.color]="k.color">{{ k.value }}</div>
         <div class="kpi-delta">{{ k.delta }}</div>
@@ -27,14 +27,17 @@ import { ToastService } from '../../../core/services/toast.service';
       <!-- Revenue bar chart -->
       <div class="chart-section" style="flex:2">
         <div class="chart-header">
-          <div class="chart-title">Faturamento semanal</div>
-          <div style="display:flex;gap:6px">
-            <button class="db-period-btn active">7d</button>
-            <button class="db-period-btn">30d</button>
+          <div class="chart-title">Faturamento</div>
+          <div class="chart-header-right">
+            <div class="chart-periods">
+              <button class="db-period-btn" [class.active]="selectedPeriod() === '7d'" (click)="selectPeriod('7d')">7d</button>
+              <button class="db-period-btn" [class.active]="selectedPeriod() === '30d'" (click)="selectPeriod('30d')">30d</button>
+            </div>
+            <button class="info-icon" [attr.data-tooltip]="revenueTooltip()">ℹ️</button>
           </div>
         </div>
         <div class="bar-chart">
-          <div class="bar-wrap" *ngFor="let b of barData">
+          <div class="bar-wrap" *ngFor="let b of barData()">
             <div class="bar-val">{{ b.val }}</div>
             <div class="bar" [style.height.px]="b.h"></div>
             <div class="bar-label">{{ b.label }}</div>
@@ -92,6 +95,39 @@ import { ToastService } from '../../../core/services/toast.service';
     .bar-val { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
     .db-period-btn { padding: 4px 10px; border-radius: 50px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 11px; cursor: pointer; transition: all .2s; }
     .db-period-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+    .chart-header-right { display:flex; align-items:center; gap:10px; }
+    .info-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 14px;
+      cursor: default;
+      position: relative;
+    }
+    .info-icon:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      right: 0;
+      top: calc(100% + 10px);
+      transform: translateX(50%);
+      width: max-content;
+      max-width: 200px;
+      white-space: normal;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(29, 30, 34, .95);
+      color: white;
+      font-size: 12px;
+      line-height: 1.4;
+      z-index: 10;
+      box-shadow: 0 22px 40px rgba(0,0,0,.22);
+    }
     .db-ranking { display: flex; flex-direction: column; gap: 10px; }
     .db-rank-item { display: flex; align-items: center; gap: 10px; }
     .db-rank-pos { font-family: 'Bebas Neue', cursive; font-size: 18px; width: 22px; text-align: center; flex-shrink: 0; color: var(--muted); }
@@ -115,16 +151,24 @@ export class AdminDashboardComponent {
   data = inject(DataService);
   today = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
 
-  kpis = [
-    { label:'Pedidos Hoje',   value:'24',    delta:'↑ 8% vs ontem',  icon:'📦', color:'' },
-    { label:'Faturamento',    value:'R$1.847',delta:'↑ 12% vs ontem', icon:'💰', color:'var(--green)' },
-    { label:'Ticket Médio',   value:'R$76,95',delta:'↑ 3% vs ontem', icon:'🎯', color:'var(--accent2)' },
-    { label:'Clientes Ativos',value:'18',    delta:'Agora online',    icon:'👥', color:'' },
-    { label:'Em Preparo',     value:'4',     delta:'Média 14 min',    icon:'🔥', color:'var(--accent)' },
-    { label:'Avaliação',      value:'4.8 ★', delta:'↑ 0.2 esta semana',icon:'⭐',color:'var(--gold)' },
-  ];
+  kpis = computed(() => {
+    const faturamento = this.selectedPeriod() === '30d'
+      ? { value: 'R$9.9k', delta: '↑ 18% vs mês anterior', color: 'var(--green)' }
+      : { value: 'R$1.847', delta: '↑ 12% vs ontem', color: 'var(--green)' };
 
-  barData = [
+    return [
+      { label:'Pedidos Hoje',   value:'24',    delta:'↑ 8% vs ontem',  icon:'📦', color:'' },
+      { label:'Faturamento',    value:faturamento.value, delta:faturamento.delta, icon:'💰', color:faturamento.color },
+      { label:'Ticket Médio',   value:'R$76,95',delta:'↑ 3% vs ontem', icon:'🎯', color:'var(--accent2)' },
+      { label:'Clientes Ativos',value:'18',    delta:'Agora online',    icon:'👥', color:'' },
+      { label:'Em Preparo',     value:'4',     delta:'Média 14 min',    icon:'🔥', color:'var(--accent)' },
+      { label:'Avaliação',      value:'4.8 ★', delta:'↑ 0.2 esta semana',icon:'⭐',color:'var(--gold)' },
+    ];
+  });
+
+  selectedPeriod = signal<'7d' | '30d'>('7d');
+
+  weeklyBarData = [
     { label:'Seg', val:'R$1.2k', h: 55 },
     { label:'Ter', val:'R$1.5k', h: 68 },
     { label:'Qua', val:'R$980',  h: 44 },
@@ -133,6 +177,27 @@ export class AdminDashboardComponent {
     { label:'Sáb', val:'R$2.4k', h: 100 },
     { label:'Dom', val:'R$1.9k', h: 85 },
   ];
+
+  monthlyBarData = [
+    { label:'W1', val:'R$7.8k', h: 68 },
+    { label:'W2', val:'R$8.4k', h: 74 },
+    { label:'W3', val:'R$9.1k', h: 80 },
+    { label:'W4', val:'R$8.7k', h: 76 },
+  ];
+
+  barData = computed(() => this.selectedPeriod() === '30d' ? this.monthlyBarData : this.weeklyBarData);
+
+  selectPeriod(period: '7d' | '30d') {
+    this.selectedPeriod.set(period);
+  }
+
+  revenueTooltip = computed(() => {
+    const total = this.selectedPeriod() === '30d'
+      ? 'R$ 9.9k'
+      : 'R$ 1.847';
+    const label = this.selectedPeriod() === '30d' ? 'Último mês' : 'Última semana';
+    return `${label} • Total de receita: ${total}`;
+  });
 
   topProducts = [
     { emoji:'🍔', name:'Smash Burger Duplo',  sold:28, rev:'R$1.117', pct:100 },

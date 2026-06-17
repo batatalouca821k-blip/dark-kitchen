@@ -28,6 +28,10 @@ import { AuthService } from '../../core/services/auth.service';
           <span class="sl-label" *ngIf="!sidebarCollapsed()">Pedidos</span>
           <span class="sl-badge" *ngIf="!sidebarCollapsed()">2</span>
         </a>
+        <a class="sidebar-link" routerLink="/admin/cozinha" routerLinkActive="active">
+          <span class="sl-icon">🍳</span>
+          <span class="sl-label" *ngIf="!sidebarCollapsed()">Cozinha</span>
+        </a>
         <a class="sidebar-link" routerLink="/admin/products" routerLinkActive="active">
           <span class="sl-icon">🍔</span>
           <span class="sl-label" *ngIf="!sidebarCollapsed()">Produtos</span>
